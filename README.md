@@ -1,6 +1,10 @@
 # Visual Pushing and Grasping Toolbox
 
-Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn to plan sequences of complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error via deep reinforcement learning, trains quickly, and generalizes to new objects and scenarios. This repository provides PyTorch code for training/testing VPG policies in both simulation and real-world settings with a UR5 robot arm. This is the reference implementation for the paper:
+Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
+
+<img src="images/teaser.jpg" width=20% align="left" />
+
+This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings using a UR5 robot arm. This is the reference implementation for the paper:
 
 ### Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning
 
@@ -10,7 +14,8 @@ Visual Pushing and Grasping (VPG) is a method for training robotic agents to lea
 
 Skilled robotic manipulation benefits from complex synergies between non-prehensile (*e.g.* pushing) and prehensile (*e.g.* grasping) actions: pushing can help rearrange cluttered objects to make space for arms and fingers; likewise, grasping can help displace objects to make pushing movements more precise and collision-free. In this work, we demonstrate that it is possible to discover and learn these synergies from scratch through model-free deep reinforcement learning. Our method involves training two fully convolutional networks that map from visual observations to actions: one infers the utility of pushes for a dense pixel-wise sampling of end effector orientations and locations, while the other does the same for grasping. Both networks are trained jointly in a Q-learning framework and are entirely self-supervised by trial and error, where rewards are provided from successful grasps. In this way, our policy learns pushing motions that enable future grasps, while learning grasps that can leverage past pushes. During picking experiments in both simulation and real-world scenarios, we find that our system quickly learns complex behaviors amid challenging cases of clutter, and achieves better grasping success rates and picking efficiencies than baseline alternatives after only a few hours of training. We further demonstrate that our method is capable of generalizing to novel objects.
 
-![Overview](overview.jpg?raw=true)
+<!-- ![Method Overview](method.jpg?raw=true) -->
+<img src="images/method.jpg" width=100%/>
 
 #### Citing
 
