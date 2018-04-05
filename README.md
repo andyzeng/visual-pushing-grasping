@@ -49,7 +49,7 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 <img src="images/simulation.jpg" width=25%/>
 
 
-
+-h for help
 
 
 
@@ -69,6 +69,23 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 
 ## Running on a Real Robot (UR5)
+
+
+```
+python main.py \
+    --tcp_host_ip '100.127.7.223' \
+    --tcp_port 30002 \
+    --push_rewards \
+    --experience_replay \
+    --explore_rate_decay \
+    --load_snapshot \
+    --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+    --continue_logging \
+    --logging_directory 'logs/2018-04-01.22:59:52' \
+    --save_visualizations
+```
+
+
 
 
 

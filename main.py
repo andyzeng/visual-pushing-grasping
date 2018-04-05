@@ -4,6 +4,7 @@ import time
 import os
 import random
 import threading
+import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
@@ -17,45 +18,82 @@ from logger import Logger
 import utils
 
 
-def main():
+def main(args):
 
 
-    # User options (change me)
     # --------------- Setup options ---------------
-    is_sim = False # Run in simulation?
-    obj_mesh_dir = '/home/andyz/visual-pushing-grasping/meshes/blocks' if is_sim else None # Directory containing 3D mesh files (.obj) of objects to be added to simulation
-    num_obj = 10 if is_sim else None # Number of objects to add to simulation
-    tcp_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as TCP client (UR5)
-    tcp_port = 30002 if not is_sim else None
-    rtc_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as real-time client (UR5)
-    rtc_port = 30003 if not is_sim else None
+    is_sim = args.is_sim # Run in simulation?
+    obj_mesh_dir = os.path.abspath(args.obj_mesh_dir) if is_sim else None # Directory containing 3D mesh files (.obj) of objects to be added to simulation
+    num_obj = args.num_obj if is_sim else None # Number of objects to add to simulation
+    tcp_host_ip = args.tcp_host_ip if not is_sim else None # IP and port to robot arm as TCP client (UR5)
+    tcp_port = args.tcp_port if not is_sim else None
+    rtc_host_ip = args.rtc_host_ip if not is_sim else None # IP and port to robot arm as real-time client (UR5)
+    rtc_port = args.rtc_port if not is_sim else None
     if is_sim:
         workspace_limits = np.asarray([[-0.724, -0.276], [-0.224, 0.224], [-0.0001, 0.4]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
     else:
         workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-    heightmap_resolution = 0.002 # Meters per pixel
-    random_seed = 1234
+    heightmap_resolution = args.heightmap_resolution # Meters per pixel of heightmap
+    random_seed = args.random_seed
+
     # ------------- Algorithm options -------------
-    method = 'reinforcement' # 'reactive' (supervised learning) or 'reinforcement' (reinforcement learning ie Q-learning)
-    push_rewards = True if method == 'reinforcement' else None # mode = 'actual-q' # 'push-no-reward' 'actual-q' 'q-diff'
-    future_reward_discount = 0.3
-    experience_replay = True
-    heuristic_bootstrap = False # Use handcrafted grasping algorithm when grasping fails too many times in a row?
-    explore_rate_decay = True
-    grasp_only = False
+    method = args.method # 'reactive' (supervised learning) or 'reinforcement' (reinforcement learning ie Q-learning)
+    push_rewards = args.push_rewards if method == 'reinforcement' else None  # Use immediate rewards (from change detection) for pushing?
+    future_reward_discount = args.future_reward_discount
+    experience_replay = args.experience_replay # Use prioritized experience replay?
+    heuristic_bootstrap = args.heuristic_bootstrap # Use handcrafted grasping algorithm when grasping fails too many times in a row?
+    explore_rate_decay = args.explore_rate_decay
+    grasp_only = args.grasp_only
+
     # -------------- Testing options --------------
-    is_testing = False
-    max_test_trials = 30
-    test_preset_cases = True # test_more_objects = False
-    test_preset_file = './test-10-obj-01.txt' if test_preset_cases else None
+    is_testing = args.is_testing
+    max_test_trials = args.max_test_trials # Maximum number of test runs per case/scenario
+    test_preset_cases = args.test_preset_cases 
+    test_preset_file = os.path.abspath(args.test_preset_file) if test_preset_cases else None
+
     # ------ Pre-loading and logging options ------
-    load_snapshot = True # Load pre-trained snapshot of model?
-    snapshot_file = './logs/2018-04-01.22:59:52/models/snapshot-backup.%s.pth' % method  if load_snapshot else None
-    # snapshot_file = './logs/paper-experiments-and-backup/exp-real-train-reinforcement-q-diff-30-obj/models/snapshot-002500.%s.pth' % method  if load_snapshot else None
-    continue_logging = True # Continue logging from previous session
-    logging_directory = './logs/2018-04-01.22:59:52' if continue_logging else './logs'
-    save_visualizations = True # Takes 0.6s per training step if set to True
-    # ---------------------------------------------
+    load_snapshot = args.load_snapshot # Load pre-trained snapshot of model?
+    snapshot_file = os.path.abspath(args.snapshot_file)  if load_snapshot else None
+    continue_logging = args.continue_logging # Continue logging from previous session
+    logging_directory = os.path.abspath(args.logging_directory) if continue_logging else os.path.abspath('logs')
+    save_visualizations = args.save_visualizations # Save visualizations of FCN predictions? Takes 0.6s per training step if set to True
+
+    # # User options (change me)
+    # # --------------- Setup options ---------------
+    # is_sim = False # Run in simulation?
+    # obj_mesh_dir = '/home/andyz/visual-pushing-grasping/meshes/blocks' if is_sim else None # Directory containing 3D mesh files (.obj) of objects to be added to simulation
+    # num_obj = 10 if is_sim else None # Number of objects to add to simulation
+    # tcp_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as TCP client (UR5)
+    # tcp_port = 30002 if not is_sim else None
+    # rtc_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as real-time client (UR5)
+    # rtc_port = 30003 if not is_sim else None
+    # if is_sim:
+    #     workspace_limits = np.asarray([[-0.724, -0.276], [-0.224, 0.224], [-0.0001, 0.4]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
+    # else:
+    #     workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
+    # heightmap_resolution = 0.002 # Meters per pixel
+    # random_seed = 1234
+    # # ------------- Algorithm options -------------
+    # method = 'reinforcement' # 'reactive' (supervised learning) or 'reinforcement' (reinforcement learning ie Q-learning)
+    # push_rewards = True if method == 'reinforcement' else None # mode = 'actual-q' # 'push-no-reward' 'actual-q' 'q-diff'
+    # future_reward_discount = 0.3
+    # experience_replay = True
+    # heuristic_bootstrap = False # Use handcrafted grasping algorithm when grasping fails too many times in a row?
+    # explore_rate_decay = True
+    # grasp_only = False
+    # # -------------- Testing options --------------
+    # is_testing = False
+    # max_test_trials = 30
+    # test_preset_cases = True # test_more_objects = False
+    # test_preset_file = './test-10-obj-01.txt' if test_preset_cases else None
+    # # ------ Pre-loading and logging options ------
+    # load_snapshot = True # Load pre-trained snapshot of model?
+    # snapshot_file = './logs/2018-04-01.22:59:52/models/snapshot-backup.%s.pth' % method  if load_snapshot else None
+    # # snapshot_file = './logs/paper-experiments-and-backup/exp-real-train-reinforcement-q-diff-30-obj/models/snapshot-002500.%s.pth' % method  if load_snapshot else None
+    # continue_logging = True # Continue logging from previous session
+    # logging_directory = './logs/2018-04-01.22:59:52' if continue_logging else './logs'
+    # save_visualizations = True # Takes 0.6s per training step if set to True
+    # # ---------------------------------------------
 
 
     # Set random seed
@@ -382,13 +420,43 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
 
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Train robotic agents to learn how to plan complementary pushing and grasping actions for manipulation with deep reinforcement learning in PyTorch.')
 
-
-
-
-
-
-
-
+    # --------------- Setup options ---------------
+    parser.add_argument('--is_sim', dest='is_sim', action='store_true', default=False,                                    help='run in simulation?')
+    parser.add_argument('--obj_mesh_dir', dest='obj_mesh_dir', action='store', default='meshes/blocks',                   help='directory containing 3D mesh files (.obj) of objects to be added to simulation')
+    parser.add_argument('--num_obj', dest='num_obj', type=int, action='store', default=10,                                help='number of objects to add to simulation')
+    parser.add_argument('--tcp_host_ip', dest='tcp_host_ip', action='store', default='100.127.7.223',                     help='IP address to robot arm as TCP client (UR5)')
+    parser.add_argument('--tcp_port', dest='tcp_port', type=int, action='store', default=30002,                           help='port to robot arm as TCP client (UR5)')
+    parser.add_argument('--rtc_host_ip', dest='rtc_host_ip', action='store', default='100.127.7.223',                     help='IP address to robot arm as real-time client (UR5)')
+    parser.add_argument('--rtc_port', dest='rtc_port', type=int, action='store', default=30003,                           help='port to robot arm as real-time client (UR5)')
+    parser.add_argument('--heightmap_resolution', dest='heightmap_resolution', type=float, action='store', default=0.002, help='meters per pixel of heightmap')
+    parser.add_argument('--random_seed', dest='random_seed', type=int, action='store', default=1234,                      help='random seed for simulation and neural net initialization')
+    
+    # ------------- Algorithm options -------------
+    parser.add_argument('--method', dest='method', action='store', default='reinforcement',                               help='set to \'reactive\' (supervised learning) or \'reinforcement\' (reinforcement learning ie Q-learning)')
+    parser.add_argument('--push_rewards', dest='push_rewards', action='store_true', default=False,                        help='use immediate rewards (from change detection) for pushing?')
+    parser.add_argument('--future_reward_discount', dest='future_reward_discount', type=float, action='store', default=0.3)
+    parser.add_argument('--experience_replay', dest='experience_replay', action='store_true', default=False,              help='use prioritized experience replay?')
+    parser.add_argument('--heuristic_bootstrap', dest='heuristic_bootstrap', action='store_true', default=False,          help='use handcrafted grasping algorithm when grasping fails too many times in a row during training?')
+    parser.add_argument('--explore_rate_decay', dest='explore_rate_decay', action='store_true', default=False)
+    parser.add_argument('--grasp_only', dest='grasp_only', action='store_true', default=False)
+    
+    # -------------- Testing options --------------
+    parser.add_argument('--is_testing', dest='is_testing', action='store_true', default=False)
+    parser.add_argument('--max_test_trials', dest='max_test_trials', type=int, action='store', default=30,                help='maximum number of test runs per case/scenario')
+    parser.add_argument('--test_preset_cases', dest='test_preset_cases', action='store_true', default=False)
+    parser.add_argument('--test_preset_file', dest='test_preset_file', action='store', default='test-10-obj-01.txt')
+    
+    # ------ Pre-loading and logging options ------
+    parser.add_argument('--load_snapshot', dest='load_snapshot', action='store_true', default=False,                      help='load pre-trained snapshot of model?')
+    parser.add_argument('--snapshot_file', dest='snapshot_file', action='store')
+    parser.add_argument('--continue_logging', dest='continue_logging', action='store_true', default=False,                help='continue logging from previous session?')
+    parser.add_argument('--logging_directory', dest='logging_directory', action='store')
+    parser.add_argument('--save_visualizations', dest='save_visualizations', action='store_true', default=False,          help='save visualizations of FCN predictions?')
+    
+    # Run main program with specified arguments
+    args = parser.parse_args()
+    main(args)
