@@ -16,7 +16,7 @@ class Robot(object):
 
         # If in simulation...
         if self.is_sim:
-            import vrep
+            import simulation.vrep
 
             # Make sure to have the server side running in V-REP: 
             # in a child script of a V-REP scene, add following command
@@ -125,14 +125,14 @@ class Robot(object):
             self.go_home()
 
             # Fetch RGB-D data from RealSense camera
-            from camera import Camera
+            from real.camera import Camera
             self.camera = Camera()
             time.sleep(1) # Give camera some time to load data
 
             # Load camera pose (from running calibrate.py), intrinsics and depth scale
-            self.cam_pose = np.loadtxt('camera_pose.txt', delimiter=' ')
-            self.cam_intrinsics = np.loadtxt('camera_intrinsics.txt', delimiter=' ')
-            self.cam_depth_scale = np.loadtxt('camera_depth_scale.txt', delimiter=' ')
+            self.cam_pose = np.loadtxt('real/camera_pose.txt', delimiter=' ')
+            self.cam_intrinsics = np.loadtxt('real/camera_intrinsics.txt', delimiter=' ')
+            self.cam_depth_scale = np.loadtxt('real/camera_depth_scale.txt', delimiter=' ')
 
 
     def setup_sim_camera(self):

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -9,7 +10,6 @@ from scipy import optimize
 from mpl_toolkits.mplot3d import Axes3D  
 
 
-
 # User options (change me)
 # --------------- Setup options ---------------
 tcp_host_ip = '100.127.7.223' # IP and port to robot arm as TCP client (UR5)
@@ -17,25 +17,11 @@ tcp_port = 30002
 rtc_host_ip = '100.127.7.223' # IP and port to robot arm as real-time client (UR5)
 rtc_port = 30003
 workspace_limits = np.asarray([[0.3, 0.748], [0.05, 0.4], [-0.2, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-
-
-# workspace_bottom_z = -0.286
-# real_params = {'tcp_host_ip' : '100.127.7.223', #'192.168.1.100', # IP and port to robot arm as TCP client (UR5)
-#                'tcp_port'    : 30002, 
-#                'rtc_host_ip' : '100.127.7.223', #'192.168.1.100', # IP and port to robot arm as real-time client (UR5)
-#                'rtc_port'    : 30003}
-# workspace_limits = np.asarray([[0.3, 0.748], [-0.4, -0.35], [-0.2, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
 calib_grid_step = 0.05
-# chessboard_offset_from_tool = [-0.13,0,0.02]
-# tool_orientation = [-1.21,1.21,-1.21] # [2.22,2.22,0]
 chessboard_offset_from_tool = [0,-0.13,0.02]
-# tool_orientation = [0,-2.22,2.22] # [2.22,2.22,0]
-tool_orientation = [-np.pi/2,0,0]
+tool_orientation = [-np.pi/2,0,0] # [0,-2.22,2.22] # [2.22,2.22,0]
+# ---------------------------------------------
 
-# # Fetch RGB-D data from RealSense camera
-# print('Connecting to camera...')
-# camera = Camera()
-# time.sleep(1) # Give camera some time to load data
 
 # Construct 3D calibration grid across workspace
 gridspace_x = np.linspace(workspace_limits[0][0], workspace_limits[0][1], 1 + (workspace_limits[0][1] - workspace_limits[0][0])/calib_grid_step)

@@ -15,26 +15,9 @@ tcp_port = 30002
 rtc_host_ip = '100.127.7.223' # IP and port to robot arm as real-time client (UR5)
 rtc_port = 30003
 workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-
-
-# workspace_bottom_z = -0.286
-# workspace_x_limits = [-0.75,-0.35]
-# workspace_y_limits = [-0.4,0.2]
-# workspace_z_limits = [-0.25,-0.15]
-# real_params = {'tcp_host_ip' : '100.127.7.223', #'192.168.1.100', # IP and port to robot arm as TCP client (UR5)
-#                'tcp_port'    : 30002, 
-#                'rtc_host_ip' : '100.127.7.223', #'192.168.1.100', # IP and port to robot arm as real-time client (UR5)
-#                'rtc_port'    : 30003}
-# workspace_limits = np.asarray([[0.3, 0.724], [-0.224, 0.224], [-0.25, -0.1]])
 tool_orientation = [2.22,-2.22,0]
+# ---------------------------------------------
 
-# # Fetch RGB-D data from RealSense camera
-# camera = Camera()
-# time.sleep(1) # Give camera some time to load data
-
-# Load camera pose (from running calibrate.py)
-# camera_pose = np.loadtxt('camera_pose.txt', delimiter=' ')
-# camera_depth_scale = np.loadtxt('camera_depth_scale.txt', delimiter=' ')
 
 # Move robot to home pose
 robot = Robot(False, None, None, workspace_limits,
