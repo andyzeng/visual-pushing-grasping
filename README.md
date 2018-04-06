@@ -2,8 +2,8 @@
 
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
-<img src="images/teaser.jpg" height=220px align="left" />
-<img src="images/self-supervision.gif" height=220px align="left">
+<img src="images/teaser.jpg" height=225px align="left" />
+<img src="images/self-supervision.gif" height=225px align="right"/><br>
 
 This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
@@ -42,35 +42,61 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Installation
 
-Our reference implementation of Visual Pushing and Grasping requires the following dependencies. Tested on Ubuntu 16.04.4 LTS.
+Our reference implementation of Visual Pushing and Grasping requires the following dependencies: 
 
 * Python 2.7 (may work for Python 3, but not tested yet) 
 * [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
   ```shell
-    pip install sudo pip install numpy scipy opencv-python torch torchvision
+  pip install sudo pip install numpy scipy opencv-python torch torchvision
   ```
-* [V-REP](http://www.coppeliarobotics.com/) (simulation environment).
+* [V-REP](http://www.coppeliarobotics.com/) (simulation environment). Requires additional setup to start a continuous remote API server service on port 19997:
+    0. Navigate to where you have installed V-REP:
+    ```shell
+    pip install sudo pip install numpy scipy opencv-python torch torchvision
+    ```
 
-#### (Optional) GPU acceleration
+Tested on Ubuntu 16.04.4 LTS.
+
+#### (Optional) GPU Acceleration
 Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
 
 ## A Quick-Start: Demo in Simulation
 
-<img src="images/simulation.jpg" width=25% align="right" />
+<img src="images/simulation.jpg" height=220px align="right" />
+<img src="images/simulation.gif" height=220px align="right" />
 
+This demo runs our pre-trained model on a UR5 robot arm in simulation on challenging picking scenarios with clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
 
+### Instructions
 
+0. Checkout this repository.
 
--h for help
+    ```shell
+    git clone https://github.com/andyzeng/visual-pushing-grasping.git visual-pushing-grasping
+    ```
 
+0. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
 
+0. Navigate to this repository and download our pre-trained models:
 
-## Creating Your Own Test Cases in Simulation
+    ```shell
+    cd visual-pushing-grasping
+    ```
 
+0. Run the following (simulation will start in the V-REP window): 
 
-
+    ```shell
+    python main.py \
+        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --push_rewards \
+        --experience_replay \
+        --explore_rate_decay \
+        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --save_visualizations
+    ```
 
 ## Training
+
 
 
 
@@ -78,13 +104,14 @@ Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](ht
 ## Evaluation
 
 
+#### Create Your Own Test Cases in Simulation
 
 
 ## Running on a Real Robot (UR5)
 
 tested on Ubuntu
 
-```
+```shell
 python main.py \
     --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
     --push_rewards \
