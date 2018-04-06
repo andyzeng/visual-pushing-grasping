@@ -41,7 +41,7 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Installation
 
-This implementation requires the following dependencies: 
+This implementation requires the following dependencies (tested on Ubuntu 16.04.4 LTS): 
 
 * Python 2.7 (may work for Python 3, but not tested yet) 
 * [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
@@ -53,8 +53,6 @@ This implementation requires the following dependencies:
     ```shell
     pip install sudo pip install numpy scipy opencv-python torch torchvision
     ```
-
-Tested on Ubuntu 16.04.4 LTS.
 
 ### (Optional) GPU Acceleration
 Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
@@ -94,13 +92,11 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 
 ## Training
 
-### Instructions
-
-To train a vanilla VPG policy from scratch:
+To train a vanilla VPG policy from scratch in simulation, run the following:
 
 ```shell
 python main.py \
-    --is_sim
+    --is_sim \
     --push_rewards \
     --experience_replay \
     --explore_rate_decay \
@@ -111,7 +107,7 @@ Data collected from each training session (including RGB-D images, camera parame
 
 ```shell
 python main.py \
-    --is_sim
+    --is_sim \
     --push_rewards \
     --experience_replay \
     --explore_rate_decay \
@@ -120,17 +116,16 @@ python main.py \
     --save_visualizations
 ```
 
-Note that various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
+Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
 
 * Train reactive policies with grasping-only (Grasping-only)
 
     ```shell
     python main.py \
-        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-        --push_rewards \
+        --is_sim \
+        --method 'reactive' \
         --experience_replay \
-        --explore_rate_decay \
-        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --grasp_only \
         --save_visualizations
     ```
 
@@ -138,11 +133,9 @@ Note that various training options can be modified or toggled on/off with differ
 
     ```shell
     python main.py \
-        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-        --push_rewards \
+        --is_sim \
+        --method 'reactive' \
         --experience_replay \
-        --explore_rate_decay \
-        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
         --save_visualizations
     ```
 
@@ -150,11 +143,9 @@ Note that various training options can be modified or toggled on/off with differ
 
     ```shell
     python main.py \
-        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-        --push_rewards \
+        --is_sim \
         --experience_replay \
         --explore_rate_decay \
-        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
         --save_visualizations
     ```
 
@@ -162,17 +153,17 @@ Note that various training options can be modified or toggled on/off with differ
 
     ```shell
     python main.py \
-        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --is_sim \
         --push_rewards \
+        --future_reward_discount 0.3 \
         --experience_replay \
         --explore_rate_decay \
-        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
         --save_visualizations
     ```
 
 ## Evaluation
 
- To evaluate the performance of a model over training time, run the following:
+To plot the performance of a session over training time, run the following:
 
 ```shell
 python main.py \
