@@ -3,7 +3,8 @@
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
 <img src="images/teaser.jpg" height=233px align="left" />
-<img src="images/self-supervision.gif" height=233px align="right"/>
+<img src="images/self-supervision.gif" height=233px align="left"/>
+<br>
 
 This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
