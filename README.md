@@ -2,9 +2,10 @@
 
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
-<img src="images/teaser.jpg" width=25% align="left" />
+<img src="images/teaser.jpg" width=240px align="left" />
+<img src="images/self-supervision.gif" height=240px align="left">
 
-This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings using a UR5 robot arm. This is the reference implementation for the paper:
+This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
 ### Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning
 
@@ -41,12 +42,23 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Installation
 
+Our reference implementation of Visual Pushing and Grasping requires the following dependencies. Tested on Ubuntu 16.04.4 LTS.
 
+* Python 2.7 (may work for Python 3, but not tested yet) 
+* [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
+  ```shell
+    pip install sudo pip install numpy scipy opencv-python torch torchvision
+  ```
+* [V-REP](http://www.coppeliarobotics.com/) (simulation environment).
 
+#### (Optional) GPU acceleration
+Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
 
 ## A Quick-Start: Demo in Simulation
 
-<img src="images/simulation.jpg" width=25%/>
+<img src="images/simulation.jpg" width=25% align="right" />
+
+
 
 
 -h for help
@@ -70,25 +82,23 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Running on a Real Robot (UR5)
 
+tested on Ubuntu
 
 ```
 python main.py \
-    --tcp_host_ip '100.127.7.223' \
-    --tcp_port 30002 \
+    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
     --push_rewards \
     --experience_replay \
     --explore_rate_decay \
-    --load_snapshot \
-    --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
-    --continue_logging \
-    --logging_directory 'logs/2018-04-01.22:59:52' \
+    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
     --save_visualizations
 ```
 
 
 
 
-
+us debug.py as a way to test robot waypoints and communication
 
 
 
