@@ -80,11 +80,7 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 0. Run the following (simulation will start in the V-REP window): 
 
     ```shell
-    python main.py \
-        --is_sim \
-        --push_rewards \
-        --experience_replay \
-        --explore_rate_decay \
+    python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay \
         --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
         --load_snapshot --snapshot_file 'downloads/vpg-original-pre-trained-10-obj.pth' \
         --save_visualizations
@@ -92,28 +88,19 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 
 ## Training
 
-To train a vanilla VPG policy from scratch in simulation, run the following:
+To train a vanilla VPG policy from scratch in simulation, first start the simulation environment by running V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`. Navigate to this repository and run the following:
 
 ```shell
-python main.py \
-    --is_sim \
-    --push_rewards \
-    --experience_replay \
-    --explore_rate_decay \
-    --save_visualizations
+cd visual-pushing-grasping
+python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay --save_visualizations
 ```
 
 Data collected from each training session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. A training session can be resumed by running the following (which loads the latest model snapshot and transition history from the specified session directory):
 
 ```shell
-python main.py \
-    --is_sim \
-    --push_rewards \
-    --experience_replay \
-    --explore_rate_decay \
+python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay --save_visualizations \
     --load_snapshot --snapshot_file 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE/models/snapshot-backup.reinforcement.pth' \
-    --continue_logging --logging_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE'
-    --save_visualizations
+    --continue_logging --logging_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' \
 ```
 
 Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
@@ -121,60 +108,44 @@ Various training options can be modified or toggled on/off with different flags 
 * Train reactive policies with grasping-only (Grasping-only)
 
     ```shell
-    python main.py \
-        --is_sim \
-        --method 'reactive' \
-        --experience_replay \
-        --grasp_only \
-        --save_visualizations
+    python main.py --is_sim --method 'reactive' --experience_replay --grasp_only --save_visualizations
     ```
 
 * Train reactive policies with pushing and grasping (P+G Reactive)
 
     ```shell
-    python main.py \
-        --is_sim \
-        --method 'reactive' \
-        --experience_replay \
-        --save_visualizations
+    python main.py --is_sim --method 'reactive' --experience_replay --save_visualizations
     ```
 
 * Train VPG policies without any rewards for pushing (VPG-noreward)
 
     ```shell
-    python main.py \
-        --is_sim \
-        --experience_replay \
-        --explore_rate_decay \
-        --save_visualizations
+    python main.py --is_sim --experience_replay --explore_rate_decay --save_visualizations
     ```
 
 * Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic)
 
     ```shell
-    python main.py \
-        --is_sim \
-        --push_rewards \
-        --future_reward_discount 0.3 \
-        --experience_replay \
-        --explore_rate_decay \
-        --save_visualizations
+    python main.py --is_sim --push_rewards --future_reward_discount 0.3 --experience_replay --explore_rate_decay --save_visualizations
     ```
 
 ## Evaluation
 
+### Evaluating Performance over Training
+
 To plot the performance of a session over training time, run the following:
 
 ```shell
-python main.py \
-    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-    --push_rewards \
-    --experience_replay \
-    --explore_rate_decay \
-    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
-    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
-    --save_visualizations
+python evaluate.py 'logs/2018-04-01.22:59:52'
 ```
+
+To compare performance between methods, you can draw multiple plots at a time:
+
+```shell
+python evaluate.py 'logs/2018-04-01.22:59:52'
+```
+
+### Evaluating Performance on Test Cases
 
 To systematically loop through multiple test cases and evaluate a trained model's overall performance, run the following:
 
@@ -188,6 +159,10 @@ python main.py \
     --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
     --save_visualizations
 ```
+
+### Evaluating Performance on Randomly Dropped Objects
+
+To run
 
 Then to evaluate
 
