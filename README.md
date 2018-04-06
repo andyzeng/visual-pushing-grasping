@@ -2,8 +2,8 @@
 
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
-<img src="images/teaser.jpg" height=225px align="left" />
-<img src="images/self-supervision.gif" height=225px align="right"/><br>
+<div width=100% height=225px><img src="images/teaser.jpg" height=225px align="left" />
+<img src="images/self-supervision.gif" height=225px align="right"/></div>
 
 This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
@@ -31,9 +31,6 @@ If you find this code useful in your work, please consider citing:
 }
 ```
 
-#### License
-This code is released under the Simplified BSD License (refer to the LICENSE file for details).
-
 #### Demo Videos
 Demo videos of a real robot in action can be found [here](http://vpg.cs.princeton.edu/).
 
@@ -42,7 +39,7 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Installation
 
-Our reference implementation of Visual Pushing and Grasping requires the following dependencies: 
+Our reference implementation requires the following dependencies: 
 
 * Python 2.7 (may work for Python 3, but not tested yet) 
 * [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
