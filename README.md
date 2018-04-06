@@ -2,8 +2,8 @@
 
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
-<img src="images/teaser.jpg" height=230px align="left" />
-<img src="images/self-supervision.gif" height=230px align="right"/>
+<img src="images/teaser.jpg" height=235px align="left" />
+<img src="images/self-supervision.gif" height=235px align="right"/>
 
 This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
@@ -54,7 +54,7 @@ Our reference implementation requires the following dependencies:
 
 Tested on Ubuntu 16.04.4 LTS.
 
-#### (Optional) GPU Acceleration
+### (Optional) GPU Acceleration
 Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
 
 ## A Quick-Start: Demo in Simulation
@@ -62,7 +62,7 @@ Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](ht
 <img src="images/simulation.gif" height=200px align="right" />
 <img src="images/simulation.jpg" height=200px align="right" />
 
-This demo runs our pre-trained model on a UR5 robot arm in simulation on challenging picking scenarios with clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
+This demo runs our pre-trained model with a UR5 robot arm in simulation on challenging picking scenarios with clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
 
 ### Instructions
 
@@ -94,19 +94,73 @@ This demo runs our pre-trained model on a UR5 robot arm in simulation on challen
 
 ## Training
 
+### Instructions
 
+To train a vanilla VPG policy from scratch:
 
+```shell
+python main.py \
+    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+    --push_rewards \
+    --experience_replay \
+    --explore_rate_decay \
+    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+    --save_visualizations
+```
 
+Note that various training options can be modified or toggled on/off with different flags. The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
+
+* Train reactive policies with grasping-only (Grasping-only)
+
+    ```shell
+    python main.py \
+        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --push_rewards \
+        --experience_replay \
+        --explore_rate_decay \
+        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --save_visualizations
+    ```
+
+* Train reactive policies with pushing and grasping (P+G Reactive)
+
+    ```shell
+    python main.py \
+        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --push_rewards \
+        --experience_replay \
+        --explore_rate_decay \
+        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --save_visualizations
+    ```
+
+* Train VPG policies without any rewards for pushing (VPG-noreward)
+
+    ```shell
+    python main.py \
+        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --push_rewards \
+        --experience_replay \
+        --explore_rate_decay \
+        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --save_visualizations
+    ```
+
+* Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic)
+
+    ```shell
+    python main.py \
+        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --push_rewards \
+        --experience_replay \
+        --explore_rate_decay \
+        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --save_visualizations
+    ```
 
 ## Evaluation
 
-
-#### Create Your Own Test Cases in Simulation
-
-
-## Running on a Real Robot (UR5)
-
-tested on Ubuntu
+Data collected from each training/testing session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. 
 
 ```shell
 python main.py \
@@ -119,18 +173,52 @@ python main.py \
     --save_visualizations
 ```
 
+To systematically loop through multiple test cases and evaluate a trained model's overall performance, run the following:
+
+```shell
+python main.py \
+    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+    --push_rewards \
+    --experience_replay \
+    --explore_rate_decay \
+    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
+    --save_visualizations
+```
+
+### Create Your Own Test Cases in Simulation
+
+Run the following:
 
 
 
-us debug.py as a way to test robot waypoints and communication
+## Running on a Real Robot (UR5)
+
+
+### Setting up perception system
+
+communication between camera and code
+
+calibration
+
+### Connecting to UR5 robot arm via TCP
 
 
 
+### Training
 
-some additional tools
+```shell
+python main.py \
+    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+    --push_rewards \
+    --experience_replay \
+    --explore_rate_decay \
+    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
+    --save_visualizations
+```
 
+### Additional tools
 
-
-
-
-
+* Use `touch.py` to test calibrated camera extrinsics -- provides a UI where the user can click a point on the RGB-D image, and the robot moves its end-effector to the 3D location of that point
+* Use `debug.py` to test robot communication and primitive actions
