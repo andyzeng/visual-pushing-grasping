@@ -5,7 +5,7 @@ Visual Pushing and Grasping (VPG) is a method for training robotic agents to lea
 <img src="images/teaser.jpg" height=233px align="left"/>
 <img src="images/self-supervision.gif" height=233px align="left"/>
 
-&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 
 This repository provides PyTorch code for training and testing VPG policies with deep reinforcement learning in both simulation and real-world settings on a UR5 robot arm. This is the reference implementation for the paper:
 
