@@ -426,7 +426,7 @@ if __name__ == '__main__':
 
     # --------------- Setup options ---------------
     parser.add_argument('--is_sim', dest='is_sim', action='store_true', default=False,                                    help='run in simulation?')
-    parser.add_argument('--obj_mesh_dir', dest='obj_mesh_dir', action='store', default='meshes/blocks',                   help='directory containing 3D mesh files (.obj) of objects to be added to simulation')
+    parser.add_argument('--obj_mesh_dir', dest='obj_mesh_dir', action='store', default='objects/blocks',                   help='directory containing 3D mesh files (.obj) of objects to be added to simulation')
     parser.add_argument('--num_obj', dest='num_obj', type=int, action='store', default=10,                                help='number of objects to add to simulation')
     parser.add_argument('--tcp_host_ip', dest='tcp_host_ip', action='store', default='100.127.7.223',                     help='IP address to robot arm as TCP client (UR5)')
     parser.add_argument('--tcp_port', dest='tcp_port', type=int, action='store', default=30002,                           help='port to robot arm as TCP client (UR5)')
@@ -438,7 +438,7 @@ if __name__ == '__main__':
     # ------------- Algorithm options -------------
     parser.add_argument('--method', dest='method', action='store', default='reinforcement',                               help='set to \'reactive\' (supervised learning) or \'reinforcement\' (reinforcement learning ie Q-learning)')
     parser.add_argument('--push_rewards', dest='push_rewards', action='store_true', default=False,                        help='use immediate rewards (from change detection) for pushing?')
-    parser.add_argument('--future_reward_discount', dest='future_reward_discount', type=float, action='store', default=0.3)
+    parser.add_argument('--future_reward_discount', dest='future_reward_discount', type=float, action='store', default=0.8)
     parser.add_argument('--experience_replay', dest='experience_replay', action='store_true', default=False,              help='use prioritized experience replay?')
     parser.add_argument('--heuristic_bootstrap', dest='heuristic_bootstrap', action='store_true', default=False,          help='use handcrafted grasping algorithm when grasping fails too many times in a row during training?')
     parser.add_argument('--explore_rate_decay', dest='explore_rate_decay', action='store_true', default=False)

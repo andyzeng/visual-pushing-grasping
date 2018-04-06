@@ -5,6 +5,7 @@ import time
 import os
 import numpy as np
 import utils
+from simulation import vrep
 
 class Robot(object):
     def __init__(self, is_sim, obj_mesh_dir, num_obj, workspace_limits,
@@ -16,7 +17,6 @@ class Robot(object):
 
         # If in simulation...
         if self.is_sim:
-            import simulation.vrep
 
             # Make sure to have the server side running in V-REP: 
             # in a child script of a V-REP scene, add following command
@@ -79,7 +79,7 @@ class Robot(object):
                 self.test_obj_orientations = []
                 for object_idx in range(self.num_obj):
                     file_content_curr_object = file_content[object_idx].split()
-                    self.test_obj_mesh_files.append(file_content_curr_object[0])
+                    self.test_obj_mesh_files.append(os.path.join(self.obj_mesh_dir,file_content_curr_object[0]))
                     self.test_obj_mesh_colors.append([float(file_content_curr_object[1]),float(file_content_curr_object[2]),float(file_content_curr_object[3])])
                     self.test_obj_positions.append([float(file_content_curr_object[4]),float(file_content_curr_object[5]),float(file_content_curr_object[6])])
                     self.test_obj_orientations.append([float(file_content_curr_object[7]),float(file_content_curr_object[8]),float(file_content_curr_object[9])])

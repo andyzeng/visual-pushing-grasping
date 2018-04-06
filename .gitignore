@@ -3,6 +3,7 @@ catkin_ws/devel
 
 backup/*
 logs/*
+downloads/*
 
 *.pyc
 *__pycache__*

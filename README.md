@@ -41,7 +41,7 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 ## Installation
 
-Our reference implementation requires the following dependencies: 
+This implementation requires the following dependencies: 
 
 * Python 2.7 (may work for Python 3, but not tested yet) 
 * [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
@@ -68,29 +68,27 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 
 ### Instructions
 
-0. Checkout this repository.
+0. Checkout this repository and download our pre-trained models.
 
     ```shell
     git clone https://github.com/andyzeng/visual-pushing-grasping.git visual-pushing-grasping
+    cd visual-pushing-grasping/downloads
+    ./download-weights.sh
+    cd ..
     ```
 
 0. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
-
-0. Navigate to this repository and download our pre-trained models:
-
-    ```shell
-    cd visual-pushing-grasping
-    ```
 
 0. Run the following (simulation will start in the V-REP window): 
 
     ```shell
     python main.py \
-        --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+        --is_sim \
         --push_rewards \
         --experience_replay \
         --explore_rate_decay \
-        --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
+        --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
+        --load_snapshot --snapshot_file 'downloads/vpg-original-pre-trained-10-obj.pth' \
         --save_visualizations
     ```
 
@@ -102,15 +100,27 @@ To train a vanilla VPG policy from scratch:
 
 ```shell
 python main.py \
-    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
+    --is_sim
     --push_rewards \
     --experience_replay \
     --explore_rate_decay \
-    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
     --save_visualizations
 ```
 
-Note that various training options can be modified or toggled on/off with different flags. The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
+Data collected from each training session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. A training session can be resumed by running the following (which loads the latest model snapshot and transition history from the specified session directory):
+
+```shell
+python main.py \
+    --is_sim
+    --push_rewards \
+    --experience_replay \
+    --explore_rate_decay \
+    --load_snapshot --snapshot_file 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE/models/snapshot-backup.reinforcement.pth' \
+    --continue_logging --logging_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE'
+    --save_visualizations
+```
+
+Note that various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
 
 * Train reactive policies with grasping-only (Grasping-only)
 
@@ -162,7 +172,7 @@ Note that various training options can be modified or toggled on/off with differ
 
 ## Evaluation
 
-Data collected from each training/testing session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. 
+ To evaluate the performance of a model over training time, run the following:
 
 ```shell
 python main.py \
@@ -188,7 +198,9 @@ python main.py \
     --save_visualizations
 ```
 
-### Create Your Own Test Cases in Simulation
+Then to evaluate
+
+### Creating your own test cases in simulation
 
 Run the following:
 
