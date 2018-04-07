@@ -173,7 +173,7 @@ python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 30
 Data from each test case will be saved into a session directory in the `logs` folder. To report the average testing performance over a session, run the following:
 
 ```shell
-python evaluate.py
+python evaluate.py '' N
 ```
 
 `N` is the number of objects that need to be picked in order to consider the task completed. For example, for the demo test case, `N` is typically set to 6.
