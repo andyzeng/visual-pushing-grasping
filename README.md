@@ -48,11 +48,7 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
   ```shell
   pip install sudo pip install numpy scipy opencv-python torch torchvision
   ```
-* [V-REP](http://www.coppeliarobotics.com/) (simulation environment). Requires additional setup to start a continuous remote API server service on port 19997:
-    1. Navigate to where you have installed V-REP:
-    ```shell
-    asdf
-    ```
+* [V-REP](http://www.coppeliarobotics.com/) (simulation environment)
 
 ### (Optional) GPU Acceleration
 Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
@@ -62,7 +58,7 @@ Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](ht
 <img src="images/simulation.gif" height=200px align="right" />
 <img src="images/simulation.jpg" height=200px align="right" />
 
-This demo runs our pre-trained model with a UR5 robot arm in simulation on challenging picking scenarios with adversarial clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
+This demo runs our pre-trained model with a UR5 robot arm in simulation on challenging picking scenarios with adversarial clutter, where grasping an object is generally not feasible without first pushing to break up tight clusters of objects. 
 
 ### Instructions
 
@@ -77,22 +73,23 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 
 1. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
 
-1. Run the following (simulation will start in the V-REP window): 
+1. In another terminal window, run the following (simulation will start in the V-REP window): 
 
     ```shell
     python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10 \
         --push_rewards --experience_replay --explore_rate_decay \
         --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
-        --load_snapshot --snapshot_file 'downloads/vpg-original-pre-trained-10-obj.pth' \
+        --load_snapshot --snapshot_file 'downloads/vpg-original-sim-pretrained-10-obj.pth' \
         --save_visualizations
     ```
 
+Note: you may get a popup window titled "Dynamics content" in your V-REP window. Select the checkbox and press OK. You will have to do this a total of 3 times before it stops annoying you.
+
 ## Training
 
-To train a regular VPG policy from scratch in simulation, first start the simulation environment by running V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`. Navigate to this repository and run the following:
+To train a regular VPG policy from scratch in simulation, first start the simulation environment by running V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`. Then navigate to this repository in another terminal window and run the following:
 
 ```shell
-cd visual-pushing-grasping
 python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay --save_visualizations
 ```
 
@@ -106,7 +103,7 @@ python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay 
 
 Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
 
-* Train reactive policies with pushing and grasping (P+G Reactive) specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
+* Train reactive policies with pushing and grasping (P+G Reactive); specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
 
     ```shell
     python main.py --is_sim --method 'reactive' --experience_replay --save_visualizations
@@ -136,7 +133,7 @@ To plot the performance of a session over training time, run the following:
 python plot.py 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE'
 ```
 
-Solid lines indicate % grasp success rates (primary metric of performance) and dotted lines indicate % push-then-grasp success rates (secondary metric to measure quality of pushes) over training steps.
+Solid lines indicate % grasp success rates (primary metric of performance) and dotted lines indicate % push-then-grasp success rates (secondary metric to measure quality of pushes) over training steps. By default, each point in the plot measures the average performance over the last 200 training steps. The range of the x-axis is from 0 to 2500 training steps. You can easily change these parameters at the top of `plot.py`.
 
 To compare performance between different sessions, you can draw multiple plots at a time:
 
@@ -175,27 +172,28 @@ python evaluate.py --session_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' -
 Average performance is measured with three metrics (for all metrics, higher is better):
 1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up at least `N` objects without failing consecutively for more than 10 attempts.
 1. Average % grasp success rate per completion.
-1. Average % action efficiency: describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies. See our [paper](https://arxiv.org/pdf/1803.09956.pdf) for details on how this is computed.
+1. Average % action efficiency: describes how succinctly the policy is capable of finishing the task. See our [paper](https://arxiv.org/pdf/1803.09956.pdf) for more details on how this is computed.
 
 #### Creating your own test cases in simulation
 
 To design your own challenging test case:
 
 1. Open the simulation environment in V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`.
-1. Navigate to this repository and run the following:
+1. In another terminal window, navigate to this repository and run the following:
 
     ```shell
-    cd visual-pushing-grasping
     python create.py
     ```
 
 1. In the V-REP window, use the V-REP toolbar (object shift/rotate) to move around objects to desired positions and orientations.
-1. In the console window, type in the name of the text file for which to save the test case, then press enter.
+1. In the terminal window type in the name of the text file for which to save the test case, then press enter.
 1. Try it out: run a trained model on the test case by running `main.py` just as in the demo, but with the flag `--test_preset_file` pointing to the location of your test case text file.
 
 ## Running on a Real Robot (UR5)
 
-The same code in this repository can be used to train/test policies on a real UR5 robot arm.
+The same code in this repository can be used to train and test on a real UR5 robot arm.
+
+robot specs?
 
 ### Setting up perception system
 

@@ -18,6 +18,23 @@ class Robot(object):
         # If in simulation...
         if self.is_sim:
 
+            # Define colors for object meshes (Tableau palette)
+            self.color_space = np.asarray([[78.0, 121.0, 167.0], # blue
+                                           [89.0, 161.0, 79.0], # green
+                                           [156, 117, 95], # brown
+                                           [242, 142, 43], # orange
+                                           [237.0, 201.0, 72.0], # yellow
+                                           [186, 176, 172], # gray
+                                           [255.0, 87.0, 89.0], # red
+                                           [176, 122, 161], # purple
+                                           [118, 183, 178], # cyan
+                                           [255, 157, 167]])/255.0 #pink 
+
+            # Read files in object mesh directory 
+            self.obj_mesh_dir = obj_mesh_dir
+            self.num_obj = num_obj
+            self.mesh_list = os.listdir(self.obj_mesh_dir)
+
             # Make sure to have the server side running in V-REP: 
             # in a child script of a V-REP scene, add following command
             # to be executed just once, at simulation start:
@@ -40,27 +57,6 @@ class Robot(object):
             else:
                 print('Connected to simulation.')
                 self.restart_sim()
-
-            # Define colors for object meshes (Tableau palette)
-            self.color_space = np.asarray([[78.0, 121.0, 167.0], # blue
-                                           [89.0, 161.0, 79.0], # green
-                                           [156, 117, 95], # brown
-                                           [242, 142, 43], # orange
-                                           [237.0, 201.0, 72.0], # yellow
-                                           [186, 176, 172], # gray
-                                           [255.0, 87.0, 89.0], # red
-                                           [176, 122, 161], # purple
-                                           [118, 183, 178], # cyan
-                                           [255, 157, 167]])/255.0 #pink 
-
-            # Read files in object mesh directory 
-            self.obj_mesh_dir = obj_mesh_dir
-            self.num_obj = num_obj
-            self.mesh_list = os.listdir(self.obj_mesh_dir)
-
-            # Randomly choose objects to add to scene
-            self.obj_mesh_ind = np.random.randint(0, len(self.mesh_list), size=self.num_obj)
-            self.obj_mesh_color = self.color_space[np.asarray(range(self.num_obj)) % 10, :]
 
             self.is_testing = is_testing
             self.test_preset_cases = test_preset_cases
@@ -202,6 +198,10 @@ class Robot(object):
             time.sleep(1)
             sim_ret, gripper_position = vrep.simxGetObjectPosition(self.sim_client, self.RG2_tip_handle, -1, vrep.simx_opmode_blocking)
             
+        # Randomly choose objects to add to scene
+        self.obj_mesh_ind = np.random.randint(0, len(self.mesh_list), size=self.num_obj)
+        self.obj_mesh_color = self.color_space[np.asarray(range(self.num_obj)) % 10, :]
+
 
     def check_sim(self):
 
