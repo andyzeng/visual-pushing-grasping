@@ -80,7 +80,8 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 1. Run the following (simulation will start in the V-REP window): 
 
     ```shell
-    python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay \
+    python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10
+        --push_rewards --experience_replay --explore_rate_decay \
         --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
         --load_snapshot --snapshot_file 'downloads/vpg-original-pre-trained-10-obj.pth' \
         --save_visualizations
@@ -149,35 +150,38 @@ We provide a collection 11 test cases in simulation with adversarial clutter. Ea
 
 <img src="images/test-cases.jpg" width=100% align="middle" />
 
-The [demo](#a-quick-start-demo-in-simulation) above runs our pre-trained model for multiple (30) test runs on a single test case. To test your own pre-trained model, simply change the location of `--snapshot_file`:
+The [demo](#a-quick-start-demo-in-simulation) above runs our pre-trained model multiple times (x30) on a single test case. To test your own pre-trained model, simply change the location of `--snapshot_file`:
 
-    ```shell
-    python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay \
-        --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
-        --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
-        --save_visualizations
-    ```
+```shell
+python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10
+    --push_rewards --experience_replay --explore_rate_decay \
+    --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
+    --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
+    --save_visualizations
+```
 
-To test on a collection of 30 or more randomly dropped objects (instead of manually engineered test cases), remove the flags `--test_preset_cases`, `--test_preset_file` and add `--num_obj 30`:
+To test on a collection of 30 or more randomly dropped objects (instead of manually engineered test cases), remove the flags `--test_preset_cases`, `--test_preset_file` and set `--num_obj 30`:
 
-    ```shell
-    python main.py --is_sim --num_obj 30
-        --push_rewards --experience_replay --explore_rate_decay \
-        --is_testing \
-        --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
-        --save_visualizations
-    ```
+```shell
+python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 30
+    --push_rewards --experience_replay --explore_rate_decay \
+    --is_testing \
+    --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
+    --save_visualizations
+```
 
-Data from each test case will be saved into a session directory in the `logs` folder. To report the average performance over the test runs, run the following:
+Data from each test case will be saved into a session directory in the `logs` folder. To report the average testing performance over a session, run the following:
 
-    ```shell
-    python evaluate.py
-    ```
+```shell
+python evaluate.py
+```
+
+`N` is the number of objects that need to be picked in order to consider the task completed. For example, for the demo test case, `N` is typically set to 6.
 
 Average performance is measured with three metrics (for all metrics, higher is better):
-1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up all objects without failing consecutively for more than 10 attempts
+1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up at least `N` objects without failing consecutively for more than 10 attempts
 1. Average % grasp success rate per completion
-1. Average % action efficiency: which describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies.
+1. Average % action efficiency: which describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies
 
 #### Creating your own test cases in simulation
 
@@ -192,6 +196,7 @@ To design your own challenging test case:
 
 ## Running on a Real Robot (UR5)
 
+The same code in this repository can be used to train/test policies on a real UR5 robot arm.
 
 ### Setting up perception system
 
@@ -204,6 +209,9 @@ calibration
 
 
 ### Training
+
+To train 
+Training on a real robot arm
 
 ```shell
 python main.py \

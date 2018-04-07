@@ -68,7 +68,7 @@ for session_idx in range(len(session_directories)):
     # Get logged data
     transitions_directory = os.path.join(session_directory, 'transitions')
     executed_action_log = np.loadtxt(os.path.join(transitions_directory, 'executed-action.log.txt'), delimiter=' ')
-    max_iteration = min(executed_action_log.shape[0] - 1, max_plot_iteration)
+    max_iteration = min(executed_action_log.shape[0] - 2, max_plot_iteration)
     executed_action_log = executed_action_log[0:max_iteration,:]
     reward_value_log = np.loadtxt(os.path.join(transitions_directory, 'reward-value.log.txt'), delimiter=' ')
     reward_value_log = reward_value_log[0:max_iteration]
