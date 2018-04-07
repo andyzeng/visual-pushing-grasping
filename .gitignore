@@ -7,3 +7,5 @@ downloads/*
 
 *.pyc
 *__pycache__*
+
+commands.txt

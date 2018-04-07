@@ -25,8 +25,6 @@ grasp_position[0] = 86 * 0.002 + workspace_limits[0][0]
 grasp_position[1] = 120 * 0.002 + workspace_limits[1][0]
 grasp_position[2] = workspace_limits[2][0]
 
-
-
 while True:
     robot.grasp(grasp_position, 11*np.pi/8, workspace_limits)
     # robot.push(push_position, 0, workspace_limits)

@@ -49,9 +49,9 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
   pip install sudo pip install numpy scipy opencv-python torch torchvision
   ```
 * [V-REP](http://www.coppeliarobotics.com/) (simulation environment). Requires additional setup to start a continuous remote API server service on port 19997:
-    0. Navigate to where you have installed V-REP:
+    1. Navigate to where you have installed V-REP:
     ```shell
-    pip install sudo pip install numpy scipy opencv-python torch torchvision
+    asdf
     ```
 
 ### (Optional) GPU Acceleration
@@ -62,11 +62,11 @@ Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](ht
 <img src="images/simulation.gif" height=200px align="right" />
 <img src="images/simulation.jpg" height=200px align="right" />
 
-This demo runs our pre-trained model with a UR5 robot arm in simulation on challenging picking scenarios with clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
+This demo runs our pre-trained model with a UR5 robot arm in simulation on challenging picking scenarios with adversarial clutter, where grasping an object is generally not feasible without pushing first to break up tight clusters of objects. 
 
 ### Instructions
 
-0. Checkout this repository and download our pre-trained models.
+1. Checkout this repository and download our pre-trained models.
 
     ```shell
     git clone https://github.com/andyzeng/visual-pushing-grasping.git visual-pushing-grasping
@@ -75,9 +75,9 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
     cd ..
     ```
 
-0. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
+1. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
 
-0. Run the following (simulation will start in the V-REP window): 
+1. Run the following (simulation will start in the V-REP window): 
 
     ```shell
     python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay \
@@ -88,14 +88,14 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 
 ## Training
 
-To train a vanilla VPG policy from scratch in simulation, first start the simulation environment by running V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`. Navigate to this repository and run the following:
+To train a regular VPG policy from scratch in simulation, first start the simulation environment by running V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`. Navigate to this repository and run the following:
 
 ```shell
 cd visual-pushing-grasping
 python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay --save_visualizations
 ```
 
-Data collected from each training session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. A training session can be resumed by running the following (which loads the latest model snapshot and transition history from the specified session directory):
+Data collected from each training session (including RGB-D images, camera parameters, heightmaps, actions, rewards, model snapshots, visualizations, etc.) is saved into a directory in the `logs` folder. A training session can be resumed by adding the flags `--load_snapshot` and `--continue_logging`, which then loads the latest model snapshot specified by `--snapshot_file` and transition history from the session directory specified by `--logging_directory`:
 
 ```shell
 python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay --save_visualizations \
@@ -105,72 +105,88 @@ python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay 
 
 Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
 
-* Train reactive policies with grasping-only (Grasping-only)
-
-    ```shell
-    python main.py --is_sim --method 'reactive' --experience_replay --grasp_only --save_visualizations
-    ```
-
-* Train reactive policies with pushing and grasping (P+G Reactive)
+* Train reactive policies with pushing and grasping (P+G Reactive) specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
 
     ```shell
     python main.py --is_sim --method 'reactive' --experience_replay --save_visualizations
     ```
 
-* Train VPG policies without any rewards for pushing (VPG-noreward)
+* Train reactive policies with grasping-only (Grasping-only); similar arguments as P+G Reactive above, but add `--grasp_only`:
+
+    ```shell
+    python main.py --is_sim --method 'reactive' --experience_replay --grasp_only --save_visualizations
+    ```
+
+* Train VPG policies without any rewards for pushing (VPG-noreward); similar arguments as regular VPG, but remove `--push_rewards`:
 
     ```shell
     python main.py --is_sim --experience_replay --explore_rate_decay --save_visualizations
     ```
 
-* Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic)
+* Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic); similar arguments as regular VPG, but set `--future_reward_discount` to `0.3`:
 
     ```shell
     python main.py --is_sim --push_rewards --future_reward_discount 0.3 --experience_replay --explore_rate_decay --save_visualizations
     ```
 
-## Evaluation
-
-### Evaluating Performance over Training
-
 To plot the performance of a session over training time, run the following:
 
 ```shell
-python evaluate.py 'logs/2018-04-01.22:59:52'
+python plot.py 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE'
 ```
 
-To compare performance between methods, you can draw multiple plots at a time:
+Solid lines indicate % grasp success rates (primary metric of performance) and dotted lines indicate % push-then-grasp success rates (secondary metric to measure quality of pushes) over training steps.
+
+To compare performance between different sessions, you can draw multiple plots at a time:
 
 ```shell
-python evaluate.py 'logs/2018-04-01.22:59:52'
+python plot.py 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' 'logs/ANOTHER-SESSION-DIRECTORY-NAME-HERE'
 ```
 
-### Evaluating Performance on Test Cases
+## Evaluation
 
-To systematically loop through multiple test cases and evaluate a trained model's overall performance, run the following:
+We provide a collection 11 challenging test cases in simulation with adversarial clutter. Each test case consists of a configuration of 3 - 6 objects placed in the workspace in front of the robot. These configurations are manually engineered to reflect challenging picking scenarios, and remain exclusive from the training procedure. Across many of these test cases, objects are laid closely side by side, in positions and orientations that even an optimal grasping policy would have trouble successfully picking up any of the objects without de-cluttering first. As a sanity check, a single isolated object is additionally placed in the workspace separate from the configuration. This is just to ensure that all policies have been sufficiently trained prior to the benchmark (*i.e.* a policy is not ready if fails to grasp the isolated object).
 
-```shell
-python main.py \
-    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-    --push_rewards \
-    --experience_replay \
-    --explore_rate_decay \
-    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
-    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
-    --save_visualizations
-```
+The [demo](#a-quick-start-demo-in-simulation) above runs our pre-trained model for multiple (30) test runs on a single test case. To test your own pre-trained model, simply change the location of `--snapshot_file`:
 
-### Evaluating Performance on Randomly Dropped Objects
+    ```shell
+    python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay \
+        --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
+        --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
+        --save_visualizations
+    ```
 
-To run
+To test on a collection of 30 or more randomly dropped objects (instead of manually engineered test cases), remove the flags `--test_preset_cases`, `--test_preset_file` and add `--num_obj 30`:
 
-Then to evaluate
+    ```shell
+    python main.py --is_sim --num_obj 30
+        --push_rewards --experience_replay --explore_rate_decay \
+        --is_testing \
+        --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
+        --save_visualizations
+    ```
 
-### Creating your own test cases in simulation
+Data from each test case will be saved into a session directory in the `logs` folder. To report the average performance over the test runs, run the following:
 
-Run the following:
+    ```shell
+    python evaluate.py
+    ```
 
+Average performance is measured with three metrics (for all metrics, higher is better):
+1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up all objects without failing consecutively for more than 10 attempts
+1. Average % grasp success rate per completion
+1. Average % action efficiency: which describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies.
 
+#### Creating your own test cases in simulation
+
+To design your own challenging test case:
+
+1. Start the simulation environment in V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`.
+1. Navigate to this repository and run the following:
+
+    ```shell
+    python create_test.py
+    ```
 
 ## Running on a Real Robot (UR5)
 
