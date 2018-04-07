@@ -58,43 +58,6 @@ def main(args):
     logging_directory = os.path.abspath(args.logging_directory) if continue_logging else os.path.abspath('logs')
     save_visualizations = args.save_visualizations # Save visualizations of FCN predictions? Takes 0.6s per training step if set to True
 
-    # # User options (change me)
-    # # --------------- Setup options ---------------
-    # is_sim = False # Run in simulation?
-    # obj_mesh_dir = '/home/andyz/visual-pushing-grasping/meshes/blocks' if is_sim else None # Directory containing 3D mesh files (.obj) of objects to be added to simulation
-    # num_obj = 10 if is_sim else None # Number of objects to add to simulation
-    # tcp_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as TCP client (UR5)
-    # tcp_port = 30002 if not is_sim else None
-    # rtc_host_ip = '100.127.7.223' if not is_sim else None # IP and port to robot arm as real-time client (UR5)
-    # rtc_port = 30003 if not is_sim else None
-    # if is_sim:
-    #     workspace_limits = np.asarray([[-0.724, -0.276], [-0.224, 0.224], [-0.0001, 0.4]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-    # else:
-    #     workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-    # heightmap_resolution = 0.002 # Meters per pixel
-    # random_seed = 1234
-    # # ------------- Algorithm options -------------
-    # method = 'reinforcement' # 'reactive' (supervised learning) or 'reinforcement' (reinforcement learning ie Q-learning)
-    # push_rewards = True if method == 'reinforcement' else None # mode = 'actual-q' # 'push-no-reward' 'actual-q' 'q-diff'
-    # future_reward_discount = 0.3
-    # experience_replay = True
-    # heuristic_bootstrap = False # Use handcrafted grasping algorithm when grasping fails too many times in a row?
-    # explore_rate_decay = True
-    # grasp_only = False
-    # # -------------- Testing options --------------
-    # is_testing = False
-    # max_test_trials = 30
-    # test_preset_cases = True # test_more_objects = False
-    # test_preset_file = './test-10-obj-01.txt' if test_preset_cases else None
-    # # ------ Pre-loading and logging options ------
-    # load_snapshot = True # Load pre-trained snapshot of model?
-    # snapshot_file = './logs/2018-04-01.22:59:52/models/snapshot-backup.%s.pth' % method  if load_snapshot else None
-    # # snapshot_file = './logs/paper-experiments-and-backup/exp-real-train-reinforcement-q-diff-30-obj/models/snapshot-002500.%s.pth' % method  if load_snapshot else None
-    # continue_logging = True # Continue logging from previous session
-    # logging_directory = './logs/2018-04-01.22:59:52' if continue_logging else './logs'
-    # save_visualizations = True # Takes 0.6s per training step if set to True
-    # # ---------------------------------------------
-
 
     # Set random seed
     np.random.seed(random_seed)
@@ -135,7 +98,7 @@ def main(args):
         while True:
             if nonlocal_variables['executing_action']:
 
-                # Determine if grasping or pushing should be executed
+                # Determine whether grasping or pushing should be executed based on network predictions
                 best_push_conf = np.max(push_predictions)
                 best_grasp_conf = np.max(grasp_predictions)
                 print('Primitive confidence scores: %f (push), %f (grasp)' % (best_push_conf, best_grasp_conf))
@@ -157,7 +120,8 @@ def main(args):
                 trainer.is_exploit_log.append([0 if explore_actions else 1]) 
                 logger.write_to_log('is-exploit', trainer.is_exploit_log)
 
-                # If change has not been detected more than 2 times, execute heuristic algorithm
+                # If heuristic bootstrapping is enabled: if change has not been detected more than 2 times, execute heuristic algorithm to detect grasps/pushes
+                # NOTE: typically not necessary and can reduce final performance.
                 if heuristic_bootstrap and nonlocal_variables['primitive_action'] == 'push' and no_change_count[0] >= 2:
                     print('Change not detected for more than two pushes. Running heuristic pushing.')
                     nonlocal_variables['best_pix_ind'] = trainer.push_heuristic(valid_depth_heightmap)
@@ -173,7 +137,7 @@ def main(args):
                 else:
                     use_heuristic = False
 
-                    # Get pixel location and rotation with highest affordance (rotation, y, x)
+                    # Get pixel location and rotation with highest affordance prediction from heuristic algorithms (rotation, y, x)
                     if nonlocal_variables['primitive_action'] == 'push':
                         nonlocal_variables['best_pix_ind'] = np.unravel_index(np.argmax(push_predictions), push_predictions.shape)
                         predicted_value = np.max(push_predictions)
@@ -240,6 +204,7 @@ def main(args):
     action_thread = threading.Thread(target=process_actions)
     action_thread.daemon = True
     action_thread.start()
+    exit_called = False
     # -------------------------------------------------------------
     # -------------------------------------------------------------
 
@@ -287,15 +252,17 @@ def main(args):
 
             trainer.clearance_log.append([trainer.iteration]) 
             logger.write_to_log('clearance', trainer.clearance_log)
-            if is_testing and len(trainer.clearance_log) > max_test_trials:
-                break
+            if is_testing and len(trainer.clearance_log) >= max_test_trials:
+                exit_called = True # Exit after training thread (backprop and saving labels)
             continue
 
-        # Run forward pass with network to get affordances
-        push_predictions, grasp_predictions, state_feat = trainer.forward(color_heightmap, valid_depth_heightmap, is_volatile=True)
+        if not exit_called: 
 
-        # Execute best primitive action on robot in another thread
-        nonlocal_variables['executing_action'] = True
+            # Run forward pass with network to get affordances
+            push_predictions, grasp_predictions, state_feat = trainer.forward(color_heightmap, valid_depth_heightmap, is_volatile=True)
+
+            # Execute best primitive action on robot in another thread
+            nonlocal_variables['executing_action'] = True
 
         # Run training iteration in current thread (aka training thread)
         if 'prev_color_img' in locals():
@@ -401,6 +368,9 @@ def main(args):
         while nonlocal_variables['executing_action']:
             time.sleep(0.01)
 
+        if exit_called: 
+            break
+
         # Save information for next training step
         prev_color_img = color_img.copy()
         prev_depth_img = depth_img.copy()
@@ -426,7 +396,7 @@ if __name__ == '__main__':
 
     # --------------- Setup options ---------------
     parser.add_argument('--is_sim', dest='is_sim', action='store_true', default=False,                                    help='run in simulation?')
-    parser.add_argument('--obj_mesh_dir', dest='obj_mesh_dir', action='store', default='objects/blocks',                   help='directory containing 3D mesh files (.obj) of objects to be added to simulation')
+    parser.add_argument('--obj_mesh_dir', dest='obj_mesh_dir', action='store', default='objects/blocks',                  help='directory containing 3D mesh files (.obj) of objects to be added to simulation')
     parser.add_argument('--num_obj', dest='num_obj', type=int, action='store', default=10,                                help='number of objects to add to simulation')
     parser.add_argument('--tcp_host_ip', dest='tcp_host_ip', action='store', default='100.127.7.223',                     help='IP address to robot arm as TCP client (UR5)')
     parser.add_argument('--tcp_port', dest='tcp_port', type=int, action='store', default=30002,                           help='port to robot arm as TCP client (UR5)')

@@ -9,3 +9,5 @@ downloads/*
 *__pycache__*
 
 commands.txt
+visualization.push.png
+visualization.grasp.png

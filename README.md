@@ -80,7 +80,7 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
 1. Run the following (simulation will start in the V-REP window): 
 
     ```shell
-    python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10
+    python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10 \
         --push_rewards --experience_replay --explore_rate_decay \
         --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
         --load_snapshot --snapshot_file 'downloads/vpg-original-pre-trained-10-obj.pth' \
@@ -153,19 +153,9 @@ We provide a collection 11 test cases in simulation with adversarial clutter. Ea
 The [demo](#a-quick-start-demo-in-simulation) above runs our pre-trained model multiple times (x30) on a single test case. To test your own pre-trained model, simply change the location of `--snapshot_file`:
 
 ```shell
-python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10
+python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10 \
     --push_rewards --experience_replay --explore_rate_decay \
     --is_testing --test_preset_cases --test_preset_file 'simulation/test-cases/test-10-obj-07.txt' \
-    --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
-    --save_visualizations
-```
-
-To test on a collection of 30 or more randomly dropped objects (instead of manually engineered test cases), remove the flags `--test_preset_cases`, `--test_preset_file` and set `--num_obj 30`:
-
-```shell
-python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 30
-    --push_rewards --experience_replay --explore_rate_decay \
-    --is_testing \
     --load_snapshot --snapshot_file 'YOUR-SNAPSHOT-FILE-HERE' \
     --save_visualizations
 ```
@@ -173,26 +163,35 @@ python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 30
 Data from each test case will be saved into a session directory in the `logs` folder. To report the average testing performance over a session, run the following:
 
 ```shell
-python evaluate.py '' N
+python evaluate.py --session_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' --method SPECIFY-METHOD --num_obj_complete N
 ```
 
-`N` is the number of objects that need to be picked in order to consider the task completed. For example, for the demo test case, `N` is typically set to 6.
+where `SPECIFY-METHOD` can be `reactive` or `reinforcement`, depending on how your model was trained. `--num_obj_complete N` defines the number of objects that need to be picked in order to consider the task completed. For example, when evaluating our pre-trained model in the demo test case, `N` should be set to 6: 
+
+```shell
+python evaluate.py --session_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' --method 'reinforcement' --num_obj_complete 6
+```
 
 Average performance is measured with three metrics (for all metrics, higher is better):
-1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up at least `N` objects without failing consecutively for more than 10 attempts
-1. Average % grasp success rate per completion
-1. Average % action efficiency: which describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies
+1. Average % completion rate over all test runs: measures the ability of the policy to finish the task by picking up at least `N` objects without failing consecutively for more than 10 attempts.
+1. Average % grasp success rate per completion.
+1. Average % action efficiency: describes how succinctly the policy is capable of finishing the task. Note that grasp success rate is equivalent to action efficiency for grasping-only policies. See our [paper](https://arxiv.org/pdf/1803.09956.pdf) for details on how this is computed.
 
 #### Creating your own test cases in simulation
 
 To design your own challenging test case:
 
-1. Start the simulation environment in V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`.
+1. Open the simulation environment in V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt`.
 1. Navigate to this repository and run the following:
 
     ```shell
-    python create_test.py
+    cd visual-pushing-grasping
+    python create.py
     ```
+
+1. In the V-REP window, use the V-REP toolbar (object shift/rotate) to move around objects to desired positions and orientations.
+1. In the console window, type in the name of the text file for which to save the test case, then press enter.
+1. Try it out: run a trained model on the test case by running `main.py` just as in the demo, but with the flag `--test_preset_file` pointing to the location of your test case text file.
 
 ## Running on a Real Robot (UR5)
 

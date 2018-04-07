@@ -86,10 +86,11 @@ for session_idx in range(len(session_directories)):
         grasp_attempt_ind_over_interval = grasp_attempt_ind_before_step[max(0,len(grasp_attempt_ind_before_step)-interval_size):len(grasp_attempt_ind_before_step),0]
 
         # Count number of times grasp attempts were successful
+        # NOTE: reward_value_log just stores some value which is indicative of successful grasping, which could be a class ID (reactive) or actual reward value (from MDP, reinforcement)
         if method == 'reactive':
-            grasp_success_over_interval = np.sum(reward_value_log[grasp_attempt_ind_over_interval] == 0)/float(min(interval_size,max(step,1)))
+            grasp_success_over_interval = np.sum(reward_value_log[grasp_attempt_ind_over_interval] == 0)/float(min(interval_size,max(step,1))) # Class ID for successful grasping is 0 (reactive policy)
         elif method == 'reinforcement':
-            grasp_success_over_interval = np.sum(reward_value_log[grasp_attempt_ind_over_interval] >= 0.5)/float(min(interval_size,max(step,1)))
+            grasp_success_over_interval = np.sum(reward_value_log[grasp_attempt_ind_over_interval] >= 0.5)/float(min(interval_size,max(step,1))) # Reward value for successful grasping is anything larger than 0.5 (reinforcement policy)
         if step < interval_size:
             grasp_success_over_interval *= (float(step)/float(interval_size))
         grasp_success[step] = grasp_success_over_interval
