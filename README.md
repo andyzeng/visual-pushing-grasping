@@ -193,11 +193,11 @@ To design your own challenging test case:
 
 ## Running on a Real Robot (UR5)
 
-The same code in this repository can be used to train on a real UR5 robot arm. Tested with UR Software version 1.8. To communicate with later versions of UR software, several changes may be necessary in `robot.py` (*e.g.* functions like `parse_tcp_state_data`) .
+The same code in this repository can be used to train on a real UR5 robot arm (tested with UR Software version 1.8). To communicate with later versions of UR software, several minor changes may be necessary in `robot.py` (*e.g.* functions like `parse_tcp_state_data`) .
 
 ### Setting Up Camera System
 
-Our system uses RGB-D data captured from an [Intel® RealSense™ D415 Camera](https://click.intel.com/intelr-realsensetm-depth-camera-d415.html). We provide a lightweight C++ executable that streams data via TCP in real-time using [librealsense SDK 2.0](https://github.com/IntelRealSense/librealsense). This enables you to connect the camera to a separate external computer, and fetch RGB-D data remotely over the network while training. This can come in handy for many real robot setups. Of course, doing so is also not necessary -- everything is runnable on the same computer.
+The latest version of our system uses RGB-D data captured from an [Intel® RealSense™ D415 Camera](https://click.intel.com/intelr-realsensetm-depth-camera-d415.html). We provide a lightweight C++ executable that streams data in real-time using [librealsense SDK 2.0](https://github.com/IntelRealSense/librealsense) via TCP. This enables you to connect the camera to an external computer and fetch RGB-D data remotely over the network while training. This can come in handy for many real robot setups. Of course, doing so is not required -- the entire system can also be run on the same computer.
 
 #### Installation Instructions:
 
@@ -230,7 +230,7 @@ python stream.py
 
 We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects the center of a moving 4x4 checkerboard pattern taped onto the gripper.
 
-The predefined 3D locations are sampled from a 3D grid of points in the robot's workspace. To modify the predefined 3D locations, change the variables `workspace_limits` and `calib_grid_step` at the top of `calibrate.py`.
+Predefined 3D locations are sampled from a 3D grid of points in the robot's workspace. To modify these locations, change the variables `workspace_limits` and `calib_grid_step` at the top of `calibrate.py`.
 
 Measure the offset between the midpoint of the checkerboard pattern to the tool center point in robot coordinates (variable `checkerboard_offset_from_tool`). This offset can change depending on the orientation of the tool (variable `tool_orientation`) as it moves across the predefined locations. Change both of these variables respectively at the top of `calibrate.py`. 
 
