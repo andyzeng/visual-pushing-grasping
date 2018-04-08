@@ -5,6 +5,12 @@ backup/*
 logs/*
 downloads/*
 
+realsense/CMakeFiles/*
+realsense/CMakeCache.txt
+realsense/Makefile
+realsense/cmake_install.cmake
+realsense/realsense
+
 *.pyc
 *__pycache__*
 

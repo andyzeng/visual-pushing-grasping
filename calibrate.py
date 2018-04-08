@@ -18,7 +18,7 @@ rtc_host_ip = '100.127.7.223' # IP and port to robot arm as real-time client (UR
 rtc_port = 30003
 workspace_limits = np.asarray([[0.3, 0.748], [0.05, 0.4], [-0.2, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
 calib_grid_step = 0.05
-chessboard_offset_from_tool = [0,-0.13,0.02]
+checkerboard_offset_from_tool = [0,-0.13,0.02]
 tool_orientation = [-np.pi/2,0,0] # [0,-2.22,2.22] # [2.22,2.22,0]
 # ---------------------------------------------
 
@@ -59,35 +59,35 @@ for calib_pt_idx in range(num_calib_grid_pts):
     robot.move_to(tool_position, tool_orientation)
     time.sleep(1)
     
-    # Find chessboard center
-    chessboard_size = (3,3)
+    # Find checkerboard center
+    checkerboard_size = (3,3)
     refine_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
     camera_color_img, camera_depth_img = robot.get_camera_data()
     bgr_color_data = cv2.cvtColor(camera_color_img, cv2.COLOR_RGB2BGR)
     gray_data = cv2.cvtColor(bgr_color_data, cv2.COLOR_RGB2GRAY)
-    chessboard_found, corners = cv2.findChessboardCorners(gray_data, chessboard_size, None, cv2.CALIB_CB_ADAPTIVE_THRESH)
-    if chessboard_found:
+    checkerboard_found, corners = cv2.findChessboardCorners(gray_data, checkerboard_size, None, cv2.CALIB_CB_ADAPTIVE_THRESH)
+    if checkerboard_found:
         corners_refined = cv2.cornerSubPix(gray_data, corners, (3,3), (-1,-1), refine_criteria)
 
-        # Get observed chessboard center 3D point in camera space
-        chessboard_pix = np.round(corners_refined[4,0,:]).astype(int)
-        chessboard_z = camera_depth_img[chessboard_pix[1]][chessboard_pix[0]]
-        chessboard_x = np.multiply(chessboard_pix[0]-robot.cam_intrinsics[0][2],chessboard_z/robot.cam_intrinsics[0][0])
-        chessboard_y = np.multiply(chessboard_pix[1]-robot.cam_intrinsics[1][2],chessboard_z/robot.cam_intrinsics[1][1])
-        if chessboard_z == 0:
+        # Get observed checkerboard center 3D point in camera space
+        checkerboard_pix = np.round(corners_refined[4,0,:]).astype(int)
+        checkerboard_z = camera_depth_img[checkerboard_pix[1]][checkerboard_pix[0]]
+        checkerboard_x = np.multiply(checkerboard_pix[0]-robot.cam_intrinsics[0][2],checkerboard_z/robot.cam_intrinsics[0][0])
+        checkerboard_y = np.multiply(checkerboard_pix[1]-robot.cam_intrinsics[1][2],checkerboard_z/robot.cam_intrinsics[1][1])
+        if checkerboard_z == 0:
             continue
 
-        # Save calibration point and observed chessboard center
-        observed_pts.append([chessboard_x,chessboard_y,chessboard_z])
-        # tool_position[2] += chessboard_offset_from_tool
-        tool_position = tool_position + chessboard_offset_from_tool
+        # Save calibration point and observed checkerboard center
+        observed_pts.append([checkerboard_x,checkerboard_y,checkerboard_z])
+        # tool_position[2] += checkerboard_offset_from_tool
+        tool_position = tool_position + checkerboard_offset_from_tool
 
         measured_pts.append(tool_position)
-        observed_pix.append(chessboard_pix)
+        observed_pix.append(checkerboard_pix)
 
         # Draw and display the corners
-        # vis = cv2.drawChessboardCorners(robot.camera.color_data, chessboard_size, corners_refined, chessboard_found)
-        vis = cv2.drawChessboardCorners(bgr_color_data, (1,1), corners_refined[4,:,:], chessboard_found)
+        # vis = cv2.drawChessboardCorners(robot.camera.color_data, checkerboard_size, corners_refined, checkerboard_found)
+        vis = cv2.drawChessboardCorners(bgr_color_data, (1,1), corners_refined[4,:,:], checkerboard_found)
         cv2.imwrite('%06d.png' % len(measured_pts), vis)
         cv2.imshow('Calibration',vis)
         cv2.waitKey(10)
@@ -146,10 +146,10 @@ camera_depth_offset = optim_result.x
 
 # Save camera optimized offset and camera pose
 print('Saving...')
-np.savetxt('camera_depth_scale.txt', camera_depth_offset, delimiter=' ')
+np.savetxt('real/camera_depth_scale.txt', camera_depth_offset, delimiter=' ')
 get_rigid_transform_error(camera_depth_offset)
 camera_pose = np.linalg.inv(world2camera)
-np.savetxt('camera_pose.txt', camera_pose, delimiter=' ')
+np.savetxt('real/camera_pose.txt', camera_pose, delimiter=' ')
 print('Done.')
 
 # DEBUG CODE -----------------------------------------------------------------------------------

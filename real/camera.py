@@ -1,73 +1,11 @@
+#!/usr/bin/env python
+
 import socket
 import numpy as np
 import cv2
 import os
 import time
 import struct
-
-
-class TCPCamera(object):
-    # Written by Johnny Lee
-
-    def __init__(self, host, port, width, height, channels, headerSize, command):
-        self.host = host
-        self.port = port
-        self.width = width
-        self.height = height
-        self.headerSize = headerSize
-        self.channels = channels
-        self.command = command
-        self.bufferSize = 4098 # 4 KiB
-
-    def connect(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(1)
-        self.socket.connect((self.host, self.port))
-
-    def close(self):
-        self.socket.close()
-
-    def grabRawData(self, size):
-        data = ""
-        while len(data) < size:
-            part = self.socket.recv(self.bufferSize)
-            data += part
-        return data
-
-    def grabTimestampOnly(self):
-        self.socket.send("\n")
-        header = self.socket.recv(self.headerSize)
-        timestamp = struct.unpack('Q', header)[0]
-        return timestamp
-
-    def grabImage(self):
-        self.socket.send(self.command)
-        data = self.grabRawData(self.width*self.height*self.channels)
-        return np.fromstring(data, np.uint8).reshape( self.height, self.width, self.channels)
-
-
-class TCPCameraRealsense(TCPCamera):
-
-    def __init__(self, host, port):
-        TCPCamera.__init__(self,host, port, 1280, 720, 1, 8, "DEPTH COLOR")
-
-    def grabImage(self, channel):
-        while True:
-            self.socket.send(self.command)
-            header = self.socket.recv(self.headerSize)
-            payloadsize = struct.unpack('Q', header)[0]
-            header = self.socket.recv(self.headerSize)
-            timestamp = struct.unpack('Q', header)[0]
-            data = self.grabRawData(payloadsize)
-            if payloadsize == self.height*self.width*5:
-                break
-
-        if channel == 0: # Depth only
-            return np.fromstring(data[:self.width*self.height*2], np.uint16).reshape(self.height, self.width)
-        if channel == 1: # Color only
-            return np.fromstring(data[self.width*self.height*2:], np.uint8).reshape(self.height, self.width, 3)
-        if channel == 2: # Depth and color
-            return np.fromstring(data[:self.width*self.height*2], np.uint16).reshape(self.height, self.width), np.fromstring(data[self.width*self.height*2:], np.uint8).reshape(self.height, self.width, 3)
 
 
 class Camera(object):
@@ -77,15 +15,28 @@ class Camera(object):
         # Data options (change me)
         self.im_height = 720
         self.im_width = 1280
-        self.server_ip = '127.0.0.1'
+        self.tcp_host_ip = '127.0.0.1'
+        self.tcp_port = 50000
+        self.buffer_size = 4098 # 4 KiB
 
-        self.TCPCamera = TCPCameraRealsense(self.server_ip, 50000)
-        self.TCPCamera.connect()
+        # Connect to server
+        self.tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tcp_socket.connect((self.tcp_host_ip, self.tcp_port))
 
 
     def get_data(self):
 
-        depth_img, color_img = self.TCPCamera.grabImage(2) 
+        # Ping the server with anything
+        self.tcp_socket.send('asdf')
+
+        # Fetch TCP data
+        data = ''
+        while len(data) < self.im_height*self.im_width*5:
+            data += self.tcp_socket.recv(self.buffer_size)
+
+        # Reorganize TCP data into color and depth frame
+        depth_img = np.fromstring(data[:self.im_width*self.im_height*2], np.uint16).reshape(self.im_height, self.im_width)
+        color_img = np.fromstring(data[self.im_width*self.im_height*2:], np.uint8).reshape(self.im_height, self.im_width, 3)
         depth_img = depth_img.astype(float)/10000.0
         return color_img, depth_img
 

@@ -46,7 +46,7 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
 * Python 2.7 (may work for Python 3, but not tested yet) 
 * [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
   ```shell
-  pip install sudo pip install numpy scipy opencv-python torch torchvision
+  sudo pip install numpy scipy opencv-python torch torchvision
   ```
 * [V-REP](http://www.coppeliarobotics.com/) (simulation environment)
 
@@ -163,7 +163,9 @@ Data from each test case will be saved into a session directory in the `logs` fo
 python evaluate.py --session_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' --method SPECIFY-METHOD --num_obj_complete N
 ```
 
-where `SPECIFY-METHOD` can be `reactive` or `reinforcement`, depending on how your model was trained. `--num_obj_complete N` defines the number of objects that need to be picked in order to consider the task completed. For example, when evaluating our pre-trained model in the demo test case, `N` should be set to 6: 
+where `SPECIFY-METHOD` can be `reactive` or `reinforcement`, depending on the architecture of your model.
+
+`--num_obj_complete N` defines the number of objects that need to be picked in order to consider the task completed. For example, when evaluating our pre-trained model in the demo test case, `N` should be set to 6: 
 
 ```shell
 python evaluate.py --session_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' --method 'reinforcement' --num_obj_complete 6
@@ -174,7 +176,7 @@ Average performance is measured with three metrics (for all metrics, higher is b
 1. Average % grasp success rate per completion.
 1. Average % action efficiency: describes how succinctly the policy is capable of finishing the task. See our [paper](https://arxiv.org/pdf/1803.09956.pdf) for more details on how this is computed.
 
-#### Creating your own test cases in simulation
+### Creating Your Own Test Cases in Simulation
 
 To design your own challenging test case:
 
@@ -191,37 +193,64 @@ To design your own challenging test case:
 
 ## Running on a Real Robot (UR5)
 
-The same code in this repository can be used to train and test on a real UR5 robot arm.
+The same code in this repository can be used to train on a real UR5 robot arm. Tested with UR Software version 1.8. To communicate with later versions of UR software, several changes may be necessary in `robot.py` (*e.g.* functions like `parse_tcp_state_data`) .
 
-robot specs?
+### Setting Up Camera System
 
-### Setting up perception system
+Our system uses RGB-D data captured from an [Intel® RealSense™ D415 Camera](https://click.intel.com/intelr-realsensetm-depth-camera-d415.html). We provide a lightweight C++ executable that streams data via TCP in real-time using [librealsense SDK 2.0](https://github.com/IntelRealSense/librealsense). This enables you to connect the camera to a separate external computer, and fetch RGB-D data remotely over the network while training. This can come in handy for many real robot setups. Of course, doing so is also not necessary -- everything is runnable on the same computer.
 
-communication between camera and code
+#### Installation Instructions:
 
-calibration
+1. Download and install [librealsense SDK 2.0](https://github.com/IntelRealSense/librealsense)
+1. Navigate to `visual-pushing-grasping/realsense` and compile `realsense.cpp`:
 
-### Connecting to UR5 robot arm via TCP
+    ```shell
+    cd visual-pushing-grasping/realsense
+    cmake .
+    make
+    ```
 
+1. Connect your RealSense camera with a USB 3.0 compliant cable (important: RealSense D400 series uses a USB-C cable, but still requires them to be 3.0 compliant to be able to stream RGB-D data).
+1. To start the TCP server and RGB-D streaming, run the following:
 
+    ```shell
+    ./realsense
+    ```
+
+Keep the executable running while calibrating or training with the real robot (instructions below). To test a python TCP client that fetches RGB-D data from the active TCP server, run the following:
+
+```shell
+cd visual-pushing-grasping/real
+python stream.py
+```
+
+#### Calibrating Camera Extrinsics:
+
+<img src="images/checkerboard.jpg" width=20%/>
+
+We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects a moving 4x4 checkerboard pattern taped onto the gripper. 
+
+The predefined 3D locations are sampled from a 3D grid of points in the robot's workspace. To modify the predefined 3D locations, change the variables `workspace_limits` and `calib_grid_step` at the top of `calibrate.py`.
+
+Measure the offset between the midpoint of the checkerboard pattern to the tool center point in robot coordinates (variable `checkerboard_offset_from_tool`). This offset can change depending on the orientation of the tool (variable `tool_orientation`) as it moves across the predefined locations. Change both of these variables respectively at the top of `calibrate.py`. 
+
+```shell
+python calibrate.py
+```
+
+The script also optimizes for a z-scale factor and saves it into `camera_depth_scale.txt`. This scale factor should be multiplied with each depth pixel captured from the camera. This step is more relevant for the RealSense SR300 cameras, which typically suffer from a severe scaling problem where the 3D data is often 15-20% smaller than real world coordinates. The D400 series are less likely to have such a severe scaling problem. 
 
 ### Training
 
-To train 
-Training on a real robot arm
+To train on the real robot, simply run:
 
 ```shell
-python main.py \
-    --tcp_host_ip '100.127.7.223' --tcp_port 30002 \
-    --push_rewards \
-    --experience_replay \
-    --explore_rate_decay \
-    --load_snapshot --snapshot_file 'logs/2018-04-01.22:59:52/models/snapshot-backup.reinforcement.pth' \
-    --continue_logging --logging_directory 'logs/2018-04-01.22:59:52' \
-    --save_visualizations
+python main.py --tcp_host_ip 'XXX.XXX.X.XXX' --tcp_port 30002 --push_rewards --experience_replay --explore_rate_decay --save_visualizations
 ```
 
-### Additional tools
+where `XXX.XXX.X.XXX` is the IP address of the UR5 robot controller.
+
+### Additional Tools
 
 * Use `touch.py` to test calibrated camera extrinsics -- provides a UI where the user can click a point on the RGB-D image, and the robot moves its end-effector to the 3D location of that point
 * Use `debug.py` to test robot communication and primitive actions

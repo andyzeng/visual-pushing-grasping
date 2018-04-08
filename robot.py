@@ -35,6 +35,10 @@ class Robot(object):
             self.num_obj = num_obj
             self.mesh_list = os.listdir(self.obj_mesh_dir)
 
+            # Randomly choose objects to add to scene
+            self.obj_mesh_ind = np.random.randint(0, len(self.mesh_list), size=self.num_obj)
+            self.obj_mesh_color = self.color_space[np.asarray(range(self.num_obj)) % 10, :]
+
             # Make sure to have the server side running in V-REP: 
             # in a child script of a V-REP scene, add following command
             # to be executed just once, at simulation start:
@@ -197,10 +201,6 @@ class Robot(object):
             vrep.simxStartSimulation(self.sim_client, vrep.simx_opmode_blocking)
             time.sleep(1)
             sim_ret, gripper_position = vrep.simxGetObjectPosition(self.sim_client, self.RG2_tip_handle, -1, vrep.simx_opmode_blocking)
-            
-        # Randomly choose objects to add to scene
-        self.obj_mesh_ind = np.random.randint(0, len(self.mesh_list), size=self.num_obj)
-        self.obj_mesh_color = self.color_space[np.asarray(range(self.num_obj)) % 10, :]
 
 
     def check_sim(self):
