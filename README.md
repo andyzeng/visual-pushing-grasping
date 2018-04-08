@@ -226,9 +226,9 @@ python stream.py
 
 #### Calibrating Camera Extrinsics:
 
-<img src="images/checkerboard.jpg" width=20%/>
+<img src="images/checkerboard.jpg" width=20% align="right" />
 
-We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects a moving 4x4 checkerboard pattern taped onto the gripper. 
+We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects the center of a moving 4x4 checkerboard pattern taped onto the gripper.
 
 The predefined 3D locations are sampled from a 3D grid of points in the robot's workspace. To modify the predefined 3D locations, change the variables `workspace_limits` and `calib_grid_step` at the top of `calibrate.py`.
 
