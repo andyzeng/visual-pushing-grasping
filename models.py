@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from collections import OrderedDict
 import numpy as np
 from scipy import ndimage

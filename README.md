@@ -221,7 +221,7 @@ Keep the executable running while calibrating or training with the real robot (i
 
 ```shell
 cd visual-pushing-grasping/real
-python stream.py
+python capture.py
 ```
 
 #### Calibrating Camera Extrinsics:
