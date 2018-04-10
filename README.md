@@ -119,7 +119,7 @@ usage: main.py [-h] [--is_sim] [--obj_mesh_dir OBJ_MESH_DIR]
                [--logging_directory LOGGING_DIRECTORY] [--save_visualizations]
 ```
 
-The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced using these flags. For example:
+Results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced using these flags. For example:
 
 * Train reactive policies with pushing and grasping (P+G Reactive); specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
 
