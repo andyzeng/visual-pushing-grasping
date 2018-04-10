@@ -301,7 +301,7 @@ def main(args):
 
             # Adjust exploration probability
             if not is_testing:
-                explore_prob = max(0.5 * np.power(0.9995, trainer.iteration),0.1) if explore_rate_decay else 0.5
+                explore_prob = max(0.5 * np.power(0.9998, trainer.iteration),0.1) if explore_rate_decay else 0.5
 
             # Do sampling for experience replay
             if experience_replay and not is_testing:
@@ -408,7 +408,7 @@ if __name__ == '__main__':
     # ------------- Algorithm options -------------
     parser.add_argument('--method', dest='method', action='store', default='reinforcement',                               help='set to \'reactive\' (supervised learning) or \'reinforcement\' (reinforcement learning ie Q-learning)')
     parser.add_argument('--push_rewards', dest='push_rewards', action='store_true', default=False,                        help='use immediate rewards (from change detection) for pushing?')
-    parser.add_argument('--future_reward_discount', dest='future_reward_discount', type=float, action='store', default=0.8)
+    parser.add_argument('--future_reward_discount', dest='future_reward_discount', type=float, action='store', default=0.5)
     parser.add_argument('--experience_replay', dest='experience_replay', action='store_true', default=False,              help='use prioritized experience replay?')
     parser.add_argument('--heuristic_bootstrap', dest='heuristic_bootstrap', action='store_true', default=False,          help='use handcrafted grasping algorithm when grasping fails too many times in a row during training?')
     parser.add_argument('--explore_rate_decay', dest='explore_rate_decay', action='store_true', default=False)

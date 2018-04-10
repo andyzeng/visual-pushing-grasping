@@ -101,7 +101,25 @@ python main.py --is_sim --push_rewards --experience_replay --explore_rate_decay 
     --continue_logging --logging_directory 'logs/YOUR-SESSION-DIRECTORY-NAME-HERE' \
 ```
 
-Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options). The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced in this way. For example:
+Various training options can be modified or toggled on/off with different flags (run `python main.py -h` to see all options):
+
+```shell
+usage: main.py [-h] [--is_sim] [--obj_mesh_dir OBJ_MESH_DIR]
+               [--num_obj NUM_OBJ] [--tcp_host_ip TCP_HOST_IP]
+               [--tcp_port TCP_PORT] [--rtc_host_ip RTC_HOST_IP]
+               [--rtc_port RTC_PORT]
+               [--heightmap_resolution HEIGHTMAP_RESOLUTION]
+               [--random_seed RANDOM_SEED] [--method METHOD] [--push_rewards]
+               [--future_reward_discount FUTURE_REWARD_DISCOUNT]
+               [--experience_replay] [--heuristic_bootstrap]
+               [--explore_rate_decay] [--grasp_only] [--is_testing]
+               [--max_test_trials MAX_TEST_TRIALS] [--test_preset_cases]
+               [--test_preset_file TEST_PRESET_FILE] [--load_snapshot]
+               [--snapshot_file SNAPSHOT_FILE] [--continue_logging]
+               [--logging_directory LOGGING_DIRECTORY] [--save_visualizations]
+```
+
+The results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced using these flags. For example:
 
 * Train reactive policies with pushing and grasping (P+G Reactive); specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
 
