@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import cv2
-from camera import Camera
+from real.camera import Camera
 from robot import Robot
 from scipy import optimize  
 from mpl_toolkits.mplot3d import Axes3D  

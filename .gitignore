@@ -3,7 +3,8 @@ catkin_ws/devel
 
 backup/*
 logs/*
-downloads/*
+downloads/server
+downloads/*.pth
 
 realsense/CMakeFiles/*
 realsense/CMakeCache.txt

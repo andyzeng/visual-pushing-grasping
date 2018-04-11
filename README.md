@@ -119,7 +119,7 @@ usage: main.py [-h] [--is_sim] [--obj_mesh_dir OBJ_MESH_DIR]
                [--logging_directory LOGGING_DIRECTORY] [--save_visualizations]
 ```
 
-Results from our baseline comparisons and ablation studies from our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced using these flags. For example:
+Results from our baseline comparisons and ablation studies in our [paper](https://arxiv.org/pdf/1803.09956.pdf) can be reproduced using these flags. For example:
 
 * Train reactive policies with pushing and grasping (P+G Reactive); specify `--method` to be `'reactive'`, remove `--push_rewards`, remove `--explore_rate_decay`:
 
@@ -234,6 +234,8 @@ The latest version of our system uses RGB-D data captured from an [Intel® RealS
     ```shell
     ./realsense
     ```
+
+1. Copy-paste the 3x3 camera intrinsics matrix (printed to console from the previous step) into `visual-pushing-grasping/real/camera_intrinsics.txt`
 
 Keep the executable running while calibrating or training with the real robot (instructions below). To test a python TCP client that fetches RGB-D data from the active TCP server, run the following:
 
