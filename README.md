@@ -252,7 +252,7 @@ Predefined 3D locations are sampled from a 3D grid of points in the robot's work
 
 Measure the offset between the midpoint of the checkerboard pattern to the tool center point in robot coordinates (variable `checkerboard_offset_from_tool`). This offset can change depending on the orientation of the tool (variable `tool_orientation`) as it moves across the predefined locations. Change both of these variables respectively at the top of `calibrate.py`. 
 
-The code directly communicates to the robot via TCP. At the top of `calibrate.py`, change variable `tcp_host_ip` to point to the network IP address of your UR5 robot controller. With caution, run the following to move the robot and calibrate:
+The code directly communicates with the robot via TCP. At the top of `calibrate.py`, change variable `tcp_host_ip` to point to the network IP address of your UR5 robot controller. With caution, run the following to move the robot and calibrate:
 
 ```shell
 python calibrate.py
