@@ -177,20 +177,18 @@ int main(int argc, char * argv[]) try {
     if (color_sensor.supports(wb_option_type))
         color_sensor.set_option(wb_option_type, 1);
 
-    // Get depth scale for converting depth pixel values into distances in meters
-    float depth_scale = depth_sensor.as<rs2::depth_sensor>().get_depth_scale();
-    std::cout << "Depth scale: " << depth_scale << std::endl;
-
     // Capture 30 frames to give autoexposure, etc. a chance to settle
     for (int i = 0; i < 30; ++i) pipe.wait_for_frames();
 
     // Print camera intrinsics of color sensor
     rs2::video_stream_profile color_stream_profile = active_pipe_profile.get_stream(rs2_stream::RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
     rs2_intrinsics color_intrinsics = color_stream_profile.get_intrinsics();
-    std::cout << "Color camera intrinsics:" << std::endl;                                
-    std::cout << "  " << color_intrinsics.fx << " " << 0.0f << " " << color_intrinsics.ppx << " " << std::endl;
-    std::cout << "  " << 0.0f << " " << color_intrinsics.fy << " " << color_intrinsics.ppy << " " << std::endl;
-    std::cout << "  " << 0.0f << " " << 0.0f << " " << 1.0f << " " << std::endl;
+    float color_intrinsics_arr[9] = {color_intrinsics.fx, 0.0f, color_intrinsics.ppx,
+                                     0.0f, color_intrinsics.fy, color_intrinsics.ppy,
+                                     0.0f, 0.0f, 1.0f};
+
+    // Get depth scale for converting depth pixel values into distances in meters
+    float depth_scale = depth_sensor.as<rs2::depth_sensor>().get_depth_scale();
 
     // Create alignment object (for aligning depth frame to color frame)
     rs2::align align(rs2_stream::RS2_STREAM_COLOR);
@@ -210,10 +208,14 @@ int main(int argc, char * argv[]) try {
         rs2::frame depth_colorized = color_map(aligned_depth);  
 
         int depth_size = aligned_depth.get_width()*aligned_depth.get_height()*aligned_depth.get_bytes_per_pixel();
-        realsense_server.update_buffer((unsigned char*)aligned_depth.get_data(), 0, depth_size);
+        realsense_server.update_buffer((unsigned char*)aligned_depth.get_data(), 10*4, depth_size);
 
         int color_size = data.get_color_frame().get_width()*data.get_color_frame().get_height()*data.get_color_frame().get_bytes_per_pixel();
-        realsense_server.update_buffer((unsigned char*)color.get_data(), depth_size, color_size);
+        realsense_server.update_buffer((unsigned char*)color.get_data(), 10*4 + depth_size, color_size);
+
+        // Send camera intrinsics and depth scale
+        realsense_server.update_buffer((unsigned char*)color_intrinsics_arr, 0, 9*4);
+        realsense_server.update_buffer((unsigned char*)&depth_scale, 9*4, 4);
 
         // Render depth on to the first half of the screen and color on to the second
         depth_image.render(depth_colorized, { 0, 0, app.width() / 2, app.height() });
