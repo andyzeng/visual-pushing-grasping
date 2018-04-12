@@ -235,8 +235,6 @@ The latest version of our system uses RGB-D data captured from an [Intel® RealS
     ./realsense
     ```
 
-1. Copy-paste the 3x3 camera intrinsics matrix (printed to console log window from the previous step) into `visual-pushing-grasping/real/camera_intrinsics.txt`
-
 Keep the executable running while calibrating or training with the real robot (instructions below). To test a python TCP client that fetches RGB-D data from the active TCP server, run the following:
 
 ```shell
