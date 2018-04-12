@@ -24,6 +24,7 @@ class Camera(object):
         self.tcp_socket.connect((self.tcp_host_ip, self.tcp_port))
 
         self.intrinsics = None
+        self.get_data()
 
 
     def get_data(self):

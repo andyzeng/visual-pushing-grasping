@@ -127,9 +127,6 @@ class Robot(object):
             # Fetch RGB-D data from RealSense camera
             from real.camera import Camera
             self.camera = Camera()
-            
-            # Call get_data to get camera intrinsics
-            self.camera.get_data()
             self.cam_intrinsics = self.camera.intrinsics
 
             # Load camera pose (from running calibrate.py), intrinsics and depth scale
