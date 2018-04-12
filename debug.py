@@ -9,7 +9,7 @@ from robot import Robot
 # --------------- Setup options ---------------
 tcp_host_ip = '100.127.7.223' # IP and port to robot arm as TCP client (UR5)
 tcp_port = 30002
-workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.250, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
+workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255, -0.1]]) # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
 # ---------------------------------------------
 
 # Initialize robot and move to home pose

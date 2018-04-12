@@ -413,7 +413,7 @@ if __name__ == '__main__':
     parser.add_argument('--heuristic_bootstrap', dest='heuristic_bootstrap', action='store_true', default=False,          help='use handcrafted grasping algorithm when grasping fails too many times in a row during training?')
     parser.add_argument('--explore_rate_decay', dest='explore_rate_decay', action='store_true', default=False)
     parser.add_argument('--grasp_only', dest='grasp_only', action='store_true', default=False)
-    
+
     # -------------- Testing options --------------
     parser.add_argument('--is_testing', dest='is_testing', action='store_true', default=False)
     parser.add_argument('--max_test_trials', dest='max_test_trials', type=int, action='store', default=30,                help='maximum number of test runs per case/scenario')

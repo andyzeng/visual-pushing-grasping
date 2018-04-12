@@ -43,15 +43,15 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 
 This implementation requires the following dependencies (tested on Ubuntu 16.04.4 LTS): 
 
-* Python 2.7 (may work for Python 3, but not tested yet) 
-* [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following:
+* Python 2.7 or Python 3 
+* [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following (replace `pip` with `pip3` for Python 3):
   ```shell
   sudo pip install numpy scipy opencv-python torch torchvision
   ```
 * [V-REP](http://www.coppeliarobotics.com/) (simulation environment)
 
 ### (Optional) GPU Acceleration
-Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. 
+Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. Running with GPU acceleration is **highly recommended**, otherwise each training iteration will take several minutes to run (as opposed to several seconds).
 
 ## A Quick-Start: Demo in Simulation
 
@@ -235,7 +235,7 @@ The latest version of our system uses RGB-D data captured from an [Intel® RealS
     ./realsense
     ```
 
-1. Copy-paste the 3x3 camera intrinsics matrix (printed to console from the previous step) into `visual-pushing-grasping/real/camera_intrinsics.txt`
+1. Copy-paste the 3x3 camera intrinsics matrix (printed to console log window from the previous step) into `visual-pushing-grasping/real/camera_intrinsics.txt`
 
 Keep the executable running while calibrating or training with the real robot (instructions below). To test a python TCP client that fetches RGB-D data from the active TCP server, run the following:
 
@@ -248,7 +248,7 @@ python capture.py
 
 <img src="images/checkerboard.jpg" width=20% align="right" />
 
-We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects the center of a moving 4x4 checkerboard pattern taped onto the gripper.
+We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects the center of a moving 4x4 checkerboard pattern taped onto the gripper. The checkerboard can be of any size (the larger, the better).
 
 Predefined 3D locations are sampled from a 3D grid of points in the robot's workspace. To modify these locations, change the variables `workspace_limits` and `calib_grid_step` at the top of `calibrate.py`.
 

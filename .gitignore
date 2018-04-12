@@ -6,6 +6,9 @@ logs/*
 downloads/server
 downloads/*.pth
 
+real/camera_depth_scale.txt
+real/camera_pose.txt
+
 realsense/CMakeFiles/*
 realsense/CMakeCache.txt
 realsense/Makefile
