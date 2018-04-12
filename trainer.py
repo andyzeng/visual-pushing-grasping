@@ -19,8 +19,7 @@ class Trainer(object):
         self.method = method
 
         # Check if CUDA can be used
-        # if torch.cuda.is_available():
-        if False:
+        if torch.cuda.is_available():
             print("CUDA detected. Running with GPU acceleration.")
             self.use_cuda = True
         else:
