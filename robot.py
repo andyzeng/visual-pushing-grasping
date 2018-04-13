@@ -725,7 +725,7 @@ class Robot(object):
                 tcp_command += "end\n"
                 self.tcp_socket.send(str.encode(tcp_command))
                 self.tcp_socket.close()
-                print(tcp_command) # Debug
+                # print(tcp_command) # Debug
 
                 # Measure gripper width until robot reaches near bin location
                 state_data = self.get_state()
