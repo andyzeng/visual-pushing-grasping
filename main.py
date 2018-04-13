@@ -363,6 +363,8 @@ def main(args):
                 logger.save_backup_model(trainer.model, method) 
                 if trainer.iteration % 50 == 0:
                     logger.save_model(trainer.iteration, trainer.model, method)
+                    if trainer.use_cuda:
+                        trainer.model = trainer.model.cuda()
 
         # Sync both action thread and training thread
         while nonlocal_variables['executing_action']:
