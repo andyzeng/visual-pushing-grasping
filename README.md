@@ -242,9 +242,10 @@ cd visual-pushing-grasping/real
 python capture.py
 ```
 
-#### Calibrating Camera Extrinsics:
+### Calibrating Camera Extrinsics
 
-<img src="images/checkerboard.jpg" width=20% align="right" />
+<img src="images/calibration.gif" height=200px align="right" />
+<img src="images/checkerboard.jpg" height=200px align="right" />
 
 We provide a simple calibration script to estimate camera extrinsics with respect to robot base coordinates. To do so, the script moves the robot gripper over a set of predefined 3D locations as the camera detects the center of a moving 4x4 checkerboard pattern taped onto the gripper. The checkerboard can be of any size (the larger, the better).
 
