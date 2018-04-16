@@ -139,10 +139,10 @@ Results from our baseline comparisons and ablation studies in our [paper](https:
     python main.py --is_sim --experience_replay --explore_rate_decay --save_visualizations
     ```
 
-* Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic); similar arguments as regular VPG, but set `--future_reward_discount` to `0.3`:
+* Train shortsighted VPG policies with lower discount factors on future rewards (VPG-myopic); similar arguments as regular VPG, but set `--future_reward_discount` to `0.2`:
 
     ```shell
-    python main.py --is_sim --push_rewards --future_reward_discount 0.3 --experience_replay --explore_rate_decay --save_visualizations
+    python main.py --is_sim --push_rewards --future_reward_discount 0.2 --experience_replay --explore_rate_decay --save_visualizations
     ```
 
 To plot the performance of a session over training time, run the following:
