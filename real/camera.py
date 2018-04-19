@@ -30,14 +30,14 @@ class Camera(object):
     def get_data(self):
 
         # Ping the server with anything
-        self.tcp_socket.send('asdf')
+        self.tcp_socket.send(b'asdf')
 
         # Fetch TCP data:
         #     color camera intrinsics, 9 floats, number of bytes: 9 x 4
         #     depth scale for converting depth from uint16 to float, 1 float, number of bytes: 4
         #     depth image, self.im_width x self.im_height uint16, number of bytes: self.im_width x self.im_height x 2
         #     color image, self.im_width x self.im_height x 3 uint8, number of bytes: self.im_width x self.im_height x 3
-        data = ''
+        data = b''
         while len(data) < (10*4 + self.im_height*self.im_width*5):
             data += self.tcp_socket.recv(self.buffer_size)
 
