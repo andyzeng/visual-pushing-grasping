@@ -48,7 +48,7 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
   ```shell
   pip install numpy scipy opencv-python
   ```
-* [PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, follow the installation instructions [here](http://pytorch.org/previous-versions/)) or run the following command:
+* [PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following:
   ```shell
   pip install torch==0.3.1 torchvision==0.2.0
   ```
