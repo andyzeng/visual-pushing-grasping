@@ -50,7 +50,7 @@ class reactive_net(nn.Module):
         for m in self.named_modules():
             if 'push-' in m[0] or 'grasp-' in m[0]:
                 if isinstance(m[1], nn.Conv2d):
-                    nn.init.kaiming_normal(m[1].weight.data)
+                    nn.init.kaiming_normal_(m[1].weight.data)
                 elif isinstance(m[1], nn.BatchNorm2d):
                     m[1].weight.data.fill_(1)
                     m[1].bias.data.zero_()
@@ -63,6 +63,7 @@ class reactive_net(nn.Module):
     def forward(self, input_color_data, input_depth_data, is_volatile=False, specific_rotation=-1):
 
         if is_volatile:
+            torch.no_grad()
             output_prob = []
             interm_feat = []
 
@@ -81,11 +82,11 @@ class reactive_net(nn.Module):
                 
                 # Rotate images clockwise
                 if self.use_cuda:
-                    rotate_color = F.grid_sample(Variable(input_color_data, volatile=True).cuda(), flow_grid_before, mode='nearest')
-                    rotate_depth = F.grid_sample(Variable(input_depth_data, volatile=True).cuda(), flow_grid_before, mode='nearest')
+                    rotate_color = F.grid_sample(Variable(input_color_data).cuda(), flow_grid_before, mode='nearest')
+                    rotate_depth = F.grid_sample(Variable(input_depth_data).cuda(), flow_grid_before, mode='nearest')
                 else:
-                    rotate_color = F.grid_sample(Variable(input_color_data, volatile=True), flow_grid_before, mode='nearest')
-                    rotate_depth = F.grid_sample(Variable(input_depth_data, volatile=True), flow_grid_before, mode='nearest')
+                    rotate_color = F.grid_sample(Variable(input_color_data), flow_grid_before, mode='nearest')
+                    rotate_depth = F.grid_sample(Variable(input_depth_data), flow_grid_before, mode='nearest')
 
                 # Compute intermediate features
                 interm_push_color_feat = self.push_color_trunk.features(rotate_color)
@@ -106,9 +107,10 @@ class reactive_net(nn.Module):
                     flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False), interm_push_feat.data.size())
                 
                 # Forward pass through branches, undo rotation on output predictions, upsample results
-                output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
-                                    nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
+                output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
+                                    nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
 
+            torch.enable_grad()
             return output_prob, interm_feat
 
         else:
@@ -156,8 +158,8 @@ class reactive_net(nn.Module):
                 flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False), interm_push_feat.data.size())
             
             # Forward pass through branches, undo rotation on output predictions, upsample results
-            self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
-                                     nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
+            self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
+                                     nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
                 
             return self.output_prob, self.interm_feat
 
@@ -200,7 +202,7 @@ class reinforcement_net(nn.Module):
         for m in self.named_modules():
             if 'push-' in m[0] or 'grasp-' in m[0]:
                 if isinstance(m[1], nn.Conv2d):
-                    nn.init.kaiming_normal(m[1].weight.data)
+                    nn.init.kaiming_normal_(m[1].weight.data)
                 elif isinstance(m[1], nn.BatchNorm2d):
                     m[1].weight.data.fill_(1)
                     m[1].bias.data.zero_()
@@ -213,6 +215,7 @@ class reinforcement_net(nn.Module):
     def forward(self, input_color_data, input_depth_data, is_volatile=False, specific_rotation=-1):
 
         if is_volatile:
+            torch.no_grad()
             output_prob = []
             interm_feat = []
 
@@ -231,11 +234,11 @@ class reinforcement_net(nn.Module):
                 
                 # Rotate images clockwise
                 if self.use_cuda:
-                    rotate_color = F.grid_sample(Variable(input_color_data, volatile=True).cuda(), flow_grid_before, mode='nearest')
-                    rotate_depth = F.grid_sample(Variable(input_depth_data, volatile=True).cuda(), flow_grid_before, mode='nearest')
+                    rotate_color = F.grid_sample(Variable(input_color_data).cuda(), flow_grid_before, mode='nearest')
+                    rotate_depth = F.grid_sample(Variable(input_depth_data).cuda(), flow_grid_before, mode='nearest')
                 else:
-                    rotate_color = F.grid_sample(Variable(input_color_data, volatile=True), flow_grid_before, mode='nearest')
-                    rotate_depth = F.grid_sample(Variable(input_depth_data, volatile=True), flow_grid_before, mode='nearest')
+                    rotate_color = F.grid_sample(Variable(input_color_data), flow_grid_before, mode='nearest')
+                    rotate_depth = F.grid_sample(Variable(input_depth_data), flow_grid_before, mode='nearest')
 
                 # Compute intermediate features
                 interm_push_color_feat = self.push_color_trunk.features(rotate_color)
@@ -256,9 +259,10 @@ class reinforcement_net(nn.Module):
                     flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False), interm_push_feat.data.size())
                 
                 # Forward pass through branches, undo rotation on output predictions, upsample results
-                output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
-                                    nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
+                output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
+                                    nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
 
+            torch.enable_grad()
             return output_prob, interm_feat
 
         else:
@@ -306,8 +310,8 @@ class reinforcement_net(nn.Module):
                 flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False), interm_push_feat.data.size())
             
             # Forward pass through branches, undo rotation on output predictions, upsample results
-            self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
-                                     nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
+            self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
+                                     nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
                 
             return self.output_prob, self.interm_feat
 
@@ -346,8 +350,8 @@ class reinforcement_net(nn.Module):
     #             flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False).cuda(), rotate_feat.data.size())
                 
     #             # Forward pass through branches, undo rotation on output predictions, upsample results
-    #             output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(rotate_feat), flow_grid_after, mode='nearest')),
-    #                                 nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(rotate_feat), flow_grid_after, mode='nearest'))])
+    #             output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(rotate_feat), flow_grid_after, mode='nearest')),
+    #                                 nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(rotate_feat), flow_grid_after, mode='nearest'))])
 
     #         return output_prob, interm_feat
 
@@ -378,8 +382,8 @@ class reinforcement_net(nn.Module):
     #         flow_grid_after = F.affine_grid(Variable(affine_mat_after, requires_grad=False).cuda(), rotate_feat.data.size())
             
     #         # Forward pass through branches, undo rotation on output predictions, upsample results
-    #         self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.pushnet(rotate_feat), flow_grid_after, mode='nearest')),
-    #                                  nn.Upsample(scale_factor=16, mode='bilinear').forward(F.grid_sample(self.graspnet(rotate_feat), flow_grid_after, mode='nearest'))])
+    #         self.output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(rotate_feat), flow_grid_after, mode='nearest')),
+    #                                  nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(rotate_feat), flow_grid_after, mode='nearest'))])
                 
     #         return self.output_prob, self.interm_feat
 

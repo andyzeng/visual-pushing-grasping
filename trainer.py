@@ -1,5 +1,6 @@
 import os
 import time
+from collections import OrderedDict
 import numpy as np
 import cv2
 import torch
@@ -59,7 +60,17 @@ class Trainer(object):
 
         # Load pre-trained model
         if load_snapshot:
-            self.model.load_state_dict(torch.load(snapshot_file))
+
+            # PyTorch v0.4 removes periods in state dict keys, but no backwards compatibility :(
+            loaded_snapshot_state_dict = torch.load(snapshot_file)
+            loaded_snapshot_state_dict = OrderedDict([(k.replace('conv.1','conv1'), v) if k.find('conv.1') else (k, v) for k, v in loaded_snapshot_state_dict.items()])
+            loaded_snapshot_state_dict = OrderedDict([(k.replace('norm.1','norm1'), v) if k.find('norm.1') else (k, v) for k, v in loaded_snapshot_state_dict.items()])
+            loaded_snapshot_state_dict = OrderedDict([(k.replace('conv.2','conv2'), v) if k.find('conv.2') else (k, v) for k, v in loaded_snapshot_state_dict.items()])
+            loaded_snapshot_state_dict = OrderedDict([(k.replace('norm.2','norm2'), v) if k.find('norm.2') else (k, v) for k, v in loaded_snapshot_state_dict.items()])
+            self.model.load_state_dict(loaded_snapshot_state_dict)
+
+            # self.model.load_state_dict(torch.load(snapshot_file)) # Old loading command pre v0.4
+
             print('Pre-trained model snapshot loaded from: %s' % (snapshot_file))
 
         # Convert model from CPU to GPU
