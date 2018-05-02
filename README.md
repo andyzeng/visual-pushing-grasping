@@ -44,9 +44,13 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 This implementation requires the following dependencies (tested on Ubuntu 16.04.4 LTS): 
 
 * Python 2.7 or Python 3 
-* [PyTorch](http://pytorch.org/), [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following (replace `pip` with `pip3` for Python 3):
+* [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following (replace `pip` with `pip3` for Python 3):
   ```shell
-  sudo pip install numpy scipy opencv-python torch torchvision
+  pip install numpy scipy opencv-python
+  ```
+* [PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, follow the installation instructions [here](http://pytorch.org/previous-versions/)). Support for PyTorch version 0.4+ is work-in-progress and lives in [this branch](https://github.com/andyzeng/visual-pushing-grasping/tree/support-pytorch-v0.4), but currently remains unstable.
+  ```shell
+  pip install torch==0.3.1 torchvision==0.2.0
   ```
 * [V-REP](http://www.coppeliarobotics.com/) (simulation environment)
 
