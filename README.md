@@ -44,9 +44,9 @@ If you have any questions or find any bugs, please let me know: [Andy Zeng](http
 This implementation requires the following dependencies (tested on Ubuntu 16.04.4 LTS): 
 
 * Python 2.7 or Python 3 
-* [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html). You can quickly install/update these dependencies by running the following (replace `pip` with `pip3` for Python 3):
+* [NumPy](http://www.numpy.org/), [SciPy](https://www.scipy.org/scipylib/index.html), [OpenCV-Python](https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_tutorials.html), [Matplotlib](https://matplotlib.org/). You can quickly install/update these dependencies by running the following (replace `pip` with `pip3` for Python 3):
   ```shell
-  pip install numpy scipy opencv-python
+  pip install numpy scipy opencv-python matplotlib
   ```
 * [PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following:
   ```shell
