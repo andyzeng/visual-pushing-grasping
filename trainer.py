@@ -14,14 +14,17 @@ import matplotlib.pyplot as plt
 
 class Trainer(object):
     def __init__(self, method, push_rewards, future_reward_discount,
-                 is_testing, load_snapshot, snapshot_file):
+                 is_testing, load_snapshot, snapshot_file, force_cpu):
 
         self.method = method
 
         # Check if CUDA can be used
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and not force_cpu:
             print("CUDA detected. Running with GPU acceleration.")
             self.use_cuda = True
+        elif force_cpu:
+            print("CUDA detected, but overriding with option '--cpu'. Running with only CPU.")
+            self.use_cuda = False
         else:
             print("CUDA is *NOT* detected. Running with only CPU.")
             self.use_cuda = False
