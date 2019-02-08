@@ -208,7 +208,7 @@ class Trainer(object):
             # Compute current reward
             current_reward = 0
             if primitive_action == 'push':
-                if change_detected and self.push_rewards:
+                if change_detected:
                     current_reward = 0.5
             elif primitive_action == 'grasp':
                 if grasp_success:
@@ -228,8 +228,12 @@ class Trainer(object):
 
             print('Current reward: %f' % (current_reward))
             print('Future reward: %f' % (future_reward))
-            expected_reward = current_reward + self.future_reward_discount * future_reward
-            print('Expected reward: %f + %f x %f = %f' % (current_reward, self.future_reward_discount, future_reward, expected_reward))
+            if primitive_action == 'push' and not self.push_rewards:
+                expected_reward = self.future_reward_discount * future_reward
+                print('Expected reward: %f + %f x %f = %f' % (0.0, self.future_reward_discount, future_reward, expected_reward))
+            else:
+                expected_reward = current_reward + self.future_reward_discount * future_reward
+                print('Expected reward: %f + %f x %f = %f' % (current_reward, self.future_reward_discount, future_reward, expected_reward))
             return expected_reward, current_reward
 
 
