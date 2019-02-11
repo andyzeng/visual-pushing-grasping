@@ -359,15 +359,15 @@ def main(args):
 
                     # Get labels for sample and backpropagate
                     sample_best_pix_ind = (np.asarray(trainer.executed_action_log)[sample_iteration,1:4]).astype(int)
-                    trainer.backprop(sample_color_heightmap, sample_depth_heightmap, sample_primitive_action, sample_best_pix_ind, new_sample_label_value)
+                    trainer.backprop(sample_color_heightmap, sample_depth_heightmap, sample_primitive_action, sample_best_pix_ind, trainer.label_value_log[sample_iteration])
 
                     # Recompute prediction value and label for replay buffer
                     if sample_primitive_action == 'push':
                         trainer.predicted_value_log[sample_iteration] = [np.max(sample_push_predictions)]
-                        trainer.label_value_log[sample_iteration] = [new_sample_label_value]
+                        # trainer.label_value_log[sample_iteration] = [new_sample_label_value]
                     elif sample_primitive_action == 'grasp':
                         trainer.predicted_value_log[sample_iteration] = [np.max(sample_grasp_predictions)]
-                        trainer.label_value_log[sample_iteration] = [new_sample_label_value]
+                        # trainer.label_value_log[sample_iteration] = [new_sample_label_value]
 
                 else:
                     print('Not enough prior training samples. Skipping experience replay.')
