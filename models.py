@@ -63,7 +63,7 @@ class reactive_net(nn.Module):
     def forward(self, input_color_data, input_depth_data, is_volatile=False, specific_rotation=-1):
 
         if is_volatile:
-            torch.no_grad()
+            torch.set_grad_enabled(False)
             output_prob = []
             interm_feat = []
 
@@ -110,7 +110,7 @@ class reactive_net(nn.Module):
                 output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
                                     nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
 
-            torch.enable_grad()
+            torch.set_grad_enabled(True)
             return output_prob, interm_feat
 
         else:
@@ -215,7 +215,7 @@ class reinforcement_net(nn.Module):
     def forward(self, input_color_data, input_depth_data, is_volatile=False, specific_rotation=-1):
 
         if is_volatile:
-            torch.no_grad()
+            torch.set_grad_enabled(False)
             output_prob = []
             interm_feat = []
 
@@ -262,7 +262,7 @@ class reinforcement_net(nn.Module):
                 output_prob.append([nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.pushnet(interm_push_feat), flow_grid_after, mode='nearest')),
                                     nn.Upsample(scale_factor=16, mode='bilinear', align_corners=True).forward(F.grid_sample(self.graspnet(interm_grasp_feat), flow_grid_after, mode='nearest'))])
 
-            torch.enable_grad()
+            torch.set_grad_enabled(True)
             return output_prob, interm_feat
 
         else:
