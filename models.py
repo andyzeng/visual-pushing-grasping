@@ -263,6 +263,7 @@ class reinforcement_net(nn.Module):
 
                 return output_prob, interm_feat
 
+
         else:
             self.output_prob = []
             self.interm_feat = []
