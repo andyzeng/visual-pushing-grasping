@@ -1,9 +1,3 @@
-
-.idea/
-V-REP_PRO_EDU_V3_5_0_Linux/
-V-REP_PRO_EDU_V3_6_1_Ubuntu16_04/
-
-
 catkin_ws/build
 catkin_ws/devel
 
@@ -27,3 +21,4 @@ realsense/realsense
 commands.txt
 visualization.push.png
 visualization.grasp.png
+
