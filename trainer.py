@@ -273,7 +273,7 @@ class Trainer(object):
                 else:
                     loss = self.push_criterion(self.model.output_prob[0][0], Variable(torch.from_numpy(label).long()))
                 loss.backward()
-                loss_value = loss.cpu().data.numpy()[0]
+                loss_value = loss.item()
 
             elif primitive_action == 'grasp':
                 # loss = self.grasp_criterion(self.model.output_prob[best_pix_ind[0]][1], Variable(torch.from_numpy(label).long().cuda()))
@@ -287,7 +287,7 @@ class Trainer(object):
                 else:
                     loss = self.grasp_criterion(self.model.output_prob[0][1], Variable(torch.from_numpy(label).long()))
                 loss.backward()
-                loss_value += loss.cpu().data.numpy()[0]
+                loss_value += loss.item()
                 
                 # Since grasping is symmetric, train with another forward pass of opposite rotation angle
                 opposite_rotate_idx = (best_pix_ind[0] + self.model.num_rotations/2) % self.model.num_rotations
@@ -299,7 +299,7 @@ class Trainer(object):
                 else:
                     loss = self.grasp_criterion(self.model.output_prob[0][1], Variable(torch.from_numpy(label).long()))
                 loss.backward()
-                loss_value += loss.cpu().data.numpy()[0]
+                loss_value += loss.item()
 
                 loss_value = loss_value/2
 
@@ -338,7 +338,7 @@ class Trainer(object):
                     loss = self.criterion(self.model.output_prob[0][0].view(1,320,320), Variable(torch.from_numpy(label).float())) * Variable(torch.from_numpy(label_weights).float(),requires_grad=False)
                 loss = loss.sum()
                 loss.backward()
-                loss_value = loss.cpu().data.numpy()[0]
+                loss_value = loss.item()
 
             elif primitive_action == 'grasp':
 
@@ -351,7 +351,8 @@ class Trainer(object):
                     loss = self.criterion(self.model.output_prob[0][1].view(1,320,320), Variable(torch.from_numpy(label).float())) * Variable(torch.from_numpy(label_weights).float(),requires_grad=False)
                 loss = loss.sum()
                 loss.backward()
-                loss_value = loss.cpu().data.numpy()[0]
+                # print("loss' size", loss.size())
+                loss_value = loss.item()
 
                 opposite_rotate_idx = (best_pix_ind[0] + self.model.num_rotations/2) % self.model.num_rotations
                 
@@ -364,7 +365,7 @@ class Trainer(object):
                 
                 loss = loss.sum()
                 loss.backward()
-                loss_value = loss.cpu().data.numpy()[0]
+                loss_value = loss.item()
 
                 loss_value = loss_value/2
 
