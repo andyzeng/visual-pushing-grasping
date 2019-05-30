@@ -86,16 +86,16 @@ def pcwrite(xyz_pts, filename, rgb_pts=None):
 
     # Write header for .ply file
     pc_file = open(filename, 'wb')
-    pc_file.write('ply\n')
-    pc_file.write('format binary_little_endian 1.0\n')
-    pc_file.write('element vertex %d\n' % xyz_pts.shape[0])
-    pc_file.write('property float x\n')
-    pc_file.write('property float y\n')
-    pc_file.write('property float z\n')
-    pc_file.write('property uchar red\n')
-    pc_file.write('property uchar green\n')
-    pc_file.write('property uchar blue\n')
-    pc_file.write('end_header\n')
+    pc_file.write(bytearray('ply\n', 'utf8'))
+    pc_file.write(bytearray('format binary_little_endian 1.0\n', 'utf8'))
+    pc_file.write(bytearray(('element vertex %d\n' % xyz_pts.shape[0]), 'utf8'))
+    pc_file.write(bytearray('property float x\n', 'utf8'))
+    pc_file.write(bytearray('property float y\n', 'utf8'))
+    pc_file.write(bytearray('property float z\n', 'utf8'))
+    pc_file.write(bytearray('property uchar red\n', 'utf8'))
+    pc_file.write(bytearray('property uchar green\n', 'utf8'))
+    pc_file.write(bytearray('property uchar blue\n', 'utf8'))
+    pc_file.write(bytearray('end_header\n', 'utf8'))
 
     # Write 3D points to .ply file
     for i in range(xyz_pts.shape[0]):
