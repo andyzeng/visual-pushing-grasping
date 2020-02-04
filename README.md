@@ -2,8 +2,8 @@
 
 Visual Pushing and Grasping (VPG) is a method for training robotic agents to learn how to plan complementary pushing and grasping actions for manipulation (*e.g.* for unstructured pick-and-place applications). VPG operates directly on visual observations (RGB-D images), learns from trial and error, trains quickly, and generalizes to new objects and scenarios.
 
-<img src="images/teaser.jpg" height=228px align="left"/>
-<img src="images/self-supervision.gif" height=228px align="left"/>
+<img src="images/teaser.jpg" height=223px align="left"/>
+<img src="images/self-supervision.gif" height=223px align="left"/>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
 
@@ -50,13 +50,17 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
   ```shell
   pip install numpy scipy opencv-python matplotlib
   ```
-* [PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following:
-  ```shell
+* ~~[PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following:~~
+  ~~```
   pip install torch==0.3.1 torchvision==0.2.0
+  ```~~
+* [PyTorch](http://pytorch.org/) version 1.0+ (thanks [Andrew](https://github.com/ahundt) for the support!):
+  ```shell
+  pip install torch torchvision
   ```
-  Support for PyTorch version 0.4+ is work-in-progress and lives in [this branch](https://github.com/andyzeng/visual-pushing-grasping/tree/support-pytorch-v0.4), but currently remains unstable.
+  <!-- Support for PyTorch version 0.4+ is work-in-progress and lives in [this branch](https://github.com/andyzeng/visual-pushing-grasping/tree/support-pytorch-v0.4), but currently remains unstable. -->
 
-* [V-REP](http://www.coppeliarobotics.com/) (simulation environment)
+* [V-REP](http://www.coppeliarobotics.com/) (now known as [CoppeliaSim](http://www.coppeliarobotics.com/)) simulation environment
 
 ### (Optional) GPU Acceleration
 Accelerating training/inference with an NVIDIA GPU requires installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn). You may need to register with NVIDIA for the CUDA Developer Program (it's free) before downloading. This code has been tested with CUDA 8.0 and cuDNN 6.0 on a single NVIDIA Titan X (12GB). Running out-of-the-box with our pre-trained models using GPU acceleration requires 8GB of GPU memory. Running with GPU acceleration is **highly recommended**, otherwise each training iteration will take several minutes to run (as opposed to several seconds). This code automatically detects the GPU(s) on your system and tries to use it. If you have a GPU, but would instead like to run in CPU mode, add the tag `--cpu` when running `main.py` below.
@@ -79,9 +83,9 @@ This demo runs our pre-trained model with a UR5 robot arm in simulation on chall
     cd ..
     ```
 
-1. Run V-REP (navigate to your V-REP directory and run `./vrep.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
+1. Run V-REP (navigate to your V-REP/CoppeliaSim directory and run `./vrep.sh` or `./coppeliaSim.sh`). From the main menu, select `File` > `Open scene...`, and open the file `visual-pushing-grasping/simulation/simulation.ttt` from this repository.
 
-1. In another terminal window, run the following (simulation will start in the V-REP window): 
+1. In another terminal window, run the following (simulation will start in the V-REP window). **Please note:** our pre-trained models were trained with PyTorch version 0.3, so this will only run with PyTorch 0.3. Training from scratch (next section) should still work with PyTorch 1.0+.
 
     ```shell
     python main.py --is_sim --obj_mesh_dir 'objects/blocks' --num_obj 10 \

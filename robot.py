@@ -393,7 +393,7 @@ class Robot(object):
         return TCP_forces
 
 
-    def close_gripper(self, async=False):
+    def close_gripper(self, asynch=False):
 
         if self.is_sim:
             gripper_motor_velocity = -0.5
@@ -417,7 +417,7 @@ class Robot(object):
             tcp_command = "set_digital_out(8,True)\n"
             self.tcp_socket.send(str.encode(tcp_command))
             self.tcp_socket.close()
-            if async:
+            if asynch:
                 gripper_fully_closed = True
             else:
                 time.sleep(1.5)
@@ -425,7 +425,7 @@ class Robot(object):
 
         return gripper_fully_closed
 
-    def open_gripper(self, async=False):
+    def open_gripper(self, asynch=False):
 
         if self.is_sim:
             gripper_motor_velocity = 0.5
@@ -443,7 +443,7 @@ class Robot(object):
             tcp_command = "set_digital_out(8,False)\n"
             self.tcp_socket.send(str.encode(tcp_command))
             self.tcp_socket.close()
-            if not async:
+            if not asynch:
                 time.sleep(1.5)
 
 
