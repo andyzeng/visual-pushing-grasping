@@ -28,9 +28,9 @@ class Robot(object):
                                            [255.0, 87.0, 89.0], # red
                                            [176, 122, 161], # purple
                                            [118, 183, 178], # cyan
-                                           [255, 157, 167]])/255.0 #pink 
+                                           [255, 157, 167]])/255.0 #pink
 
-            # Read files in object mesh directory 
+            # Read files in object mesh directory
             self.obj_mesh_dir = obj_mesh_dir
             self.num_obj = num_obj
             self.mesh_list = os.listdir(self.obj_mesh_dir)
@@ -39,7 +39,7 @@ class Robot(object):
             self.obj_mesh_ind = np.random.randint(0, len(self.mesh_list), size=self.num_obj)
             self.obj_mesh_color = self.color_space[np.asarray(range(self.num_obj)) % 10, :]
 
-            # Make sure to have the server side running in V-REP: 
+            # Make sure to have the server side running in V-REP:
             # in a child script of a V-REP scene, add following command
             # to be executed just once, at simulation start:
             #
@@ -50,7 +50,7 @@ class Robot(object):
             # IMPORTANT: for each successful call to simxStart, there
             # should be a corresponding call to simxFinish at the end!
 
-            # MODIFY remoteApiConnections.txt 
+            # MODIFY remoteApiConnections.txt
 
             # Connect to simulator
             vrep.simxFinish(-1) # Just in case, close all opened connections
@@ -72,7 +72,7 @@ class Robot(object):
             # If testing, read object meshes and poses from test case file
             if self.is_testing and self.test_preset_cases:
                 file = open(self.test_preset_file, 'r')
-                file_content = file.readlines() 
+                file_content = file.readlines()
                 self.test_obj_mesh_files = []
                 self.test_obj_mesh_colors = []
                 self.test_obj_positions = []
@@ -312,7 +312,7 @@ class Robot(object):
             color_img *= 255
             color_img = np.fliplr(color_img)
             color_img = color_img.astype(np.uint8)
-            
+
             # Get depth image from simulation
             sim_ret, resolution, depth_buffer = vrep.simxGetVisionSensorDepthBuffer(self.sim_client, self.cam_handle, vrep.simx_opmode_blocking)
             depth_img = np.asarray(depth_buffer)
@@ -403,7 +403,7 @@ class Robot(object):
             vrep.simxSetJointForce(self.sim_client, RG2_gripper_handle, gripper_motor_force, vrep.simx_opmode_blocking)
             vrep.simxSetJointTargetVelocity(self.sim_client, RG2_gripper_handle, gripper_motor_velocity, vrep.simx_opmode_blocking)
             gripper_fully_closed = False
-            while gripper_joint_position > -0.047: # Block until gripper is fully closed
+            while gripper_joint_position > -0.045: # Block until gripper is fully closed
                 sim_ret, new_gripper_joint_position = vrep.simxGetJointPosition(self.sim_client, RG2_gripper_handle, vrep.simx_opmode_blocking)
                 # print(gripper_joint_position)
                 if new_gripper_joint_position >= gripper_joint_position:
@@ -434,7 +434,7 @@ class Robot(object):
             sim_ret, gripper_joint_position = vrep.simxGetJointPosition(self.sim_client, RG2_gripper_handle, vrep.simx_opmode_blocking)
             vrep.simxSetJointForce(self.sim_client, RG2_gripper_handle, gripper_motor_force, vrep.simx_opmode_blocking)
             vrep.simxSetJointTargetVelocity(self.sim_client, RG2_gripper_handle, gripper_motor_velocity, vrep.simx_opmode_blocking)
-            while gripper_joint_position < 0.0536: # Block until gripper is fully open
+            while gripper_joint_position < 0.03: # Block until gripper is fully open
                 sim_ret, gripper_joint_position = vrep.simxGetJointPosition(self.sim_client, RG2_gripper_handle, vrep.simx_opmode_blocking)
 
         else:
@@ -483,7 +483,7 @@ class Robot(object):
             # Block until robot reaches target tool position
             tcp_state_data = self.tcp_socket.recv(2048)
             actual_tool_pose = self.parse_tcp_state_data(tcp_state_data, 'cartesian_info')
-            while not all([np.abs(actual_tool_pose[j] - tool_position[j]) < self.tool_pose_tolerance[j] for j in range(3)]): 
+            while not all([np.abs(actual_tool_pose[j] - tool_position[j]) < self.tool_pose_tolerance[j] for j in range(3)]):
                 # [min(np.abs(actual_tool_pose[j] - tool_orientation[j-3]), np.abs(np.abs(actual_tool_pose[j] - tool_orientation[j-3]) - np.pi*2)) < self.tool_pose_tolerance[j] for j in range(3,6)]
                 # print([np.abs(actual_tool_pose[j] - tool_position[j]) for j in range(3)] + [min(np.abs(actual_tool_pose[j] - tool_orientation[j-3]), np.abs(np.abs(actual_tool_pose[j] - tool_orientation[j-3]) - np.pi*2)) for j in range(3,6)])
                 tcp_state_data = self.tcp_socket.recv(2048)
@@ -535,7 +535,7 @@ class Robot(object):
                     break
                 time.sleep(0.01)
 
-            # Reading TCP forces from real-time client connection 
+            # Reading TCP forces from real-time client connection
             rtc_state_data = self.rtc_socket.recv(6496)
             TCP_forces = self.parse_rtc_state_data(rtc_state_data)
 
@@ -608,7 +608,7 @@ class Robot(object):
             grasp_location_margin = 0.15
             # sim_ret, UR5_target_handle = vrep.simxGetObjectHandle(self.sim_client,'UR5_target',vrep.simx_opmode_blocking)
             location_above_grasp_target = (position[0], position[1], position[2] + grasp_location_margin)
-            
+
             # Compute gripper position and linear movement increments
             tool_position = location_above_grasp_target
             sim_ret, UR5_target_position = vrep.simxGetObjectPosition(self.sim_client, self.UR5_target_handle,-1,vrep.simx_opmode_blocking)
@@ -664,7 +664,7 @@ class Robot(object):
             tool_orientation_angle = np.linalg.norm(tool_orientation)
             tool_orientation_axis = tool_orientation/tool_orientation_angle
             tool_orientation_rotm = utils.angle2rotm(tool_orientation_angle, tool_orientation_axis, point=None)[:3,:3]
-            
+
             # Compute tilted tool orientation during dropping into bin
             tilt_rotm = utils.euler2rotm(np.asarray([-np.pi/4,0,0]))
             tilted_tool_orientation_rotm = np.dot(tilt_rotm, tool_orientation_rotm)
@@ -786,7 +786,7 @@ class Robot(object):
             # Move gripper to location above pushing point
             pushing_point_margin = 0.1
             location_above_pushing_point = (position[0], position[1], position[2] + pushing_point_margin)
-            
+
             # Compute gripper position and linear movement increments
             tool_position = location_above_pushing_point
             sim_ret, UR5_target_position = vrep.simxGetObjectPosition(self.sim_client, self.UR5_target_handle,-1,vrep.simx_opmode_blocking)
@@ -836,7 +836,7 @@ class Robot(object):
             tool_orientation_angle = np.linalg.norm(tool_orientation)
             tool_orientation_axis = tool_orientation/tool_orientation_angle
             tool_orientation_rotm = utils.angle2rotm(tool_orientation_angle, tool_orientation_axis, point=None)[:3,:3]
-            
+
             # Compute push direction and endpoint (push to right of rotated heightmap)
             push_direction = np.asarray([push_orientation[0]*np.cos(heightmap_rotation_angle) - push_orientation[1]*np.sin(heightmap_rotation_angle), push_orientation[0]*np.sin(heightmap_rotation_angle) + push_orientation[1]*np.cos(heightmap_rotation_angle), 0.0])
             target_x = min(max(position[0] + push_direction[0]*0.1, workspace_limits[0][0]), workspace_limits[0][1])
@@ -1065,7 +1065,7 @@ class Robot(object):
 
 
 
-# # 
+# #
 
 
 # # True closes
