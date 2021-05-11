@@ -50,10 +50,7 @@ This implementation requires the following dependencies (tested on Ubuntu 16.04.
   ```shell
   pip install numpy scipy opencv-python matplotlib
   ```
-* ~~[PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following:~~
-  ~~```
-  pip install torch==0.3.1 torchvision==0.2.0
-  ```~~
+* ~~[PyTorch](http://pytorch.org/) version 0.3. Since 0.3 is no longer the latest version, see installation instructions [here](http://pytorch.org/previous-versions/) or run the following: `pip install torch==0.3.1 torchvision==0.2.0`~~
 * [PyTorch](http://pytorch.org/) version 1.0+ (thanks [Andrew](https://github.com/ahundt) for the support!):
   ```shell
   pip install torch torchvision
