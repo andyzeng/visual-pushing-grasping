@@ -1,0 +1,90 @@
+[tool.poetry]
+name = "visual-pushing-grasping"
+version = "0.1.0"
+description = "Visual Pushing and Grasping - Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning"
+authors = ["Andy Zeng <andyz@princeton.edu>"]
+readme = "README.md"
+packages = [{include = "real"}, {include = "simulation"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1.21.0"
+scipy = "^1.7.0"
+opencv-python = "^4.5.0"
+matplotlib = "^3.4.0"
+torch = ">=1.9.0"
+torchvision = ">=0.10.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.0"
+
+[tool.poetry.scripts]
+test = "pytest:main"
+tests = "pytest:main"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "-vv",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests (fast, isolated)",
+    "integration: Integration tests (may be slower)",
+    "slow: Slow tests (deselect with '-m \"not slow\"')",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["tests"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    ".venv/*",
+    "venv/*",
+    "setup.py",
+    "*/migrations/*",
+    "*/config/*",
+    "*/settings/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
